@@ -5,11 +5,11 @@ const initApp = (app, express) => {
   app.use(express.json());
   connectDB();
   app.use("/auth", authRouter);
-  app.use("*", (req, res) => {
-    return res.json({ message: "Page not found" });
-  });
   app.use("/", (req, res) => {
     return res.json({ message: "Welcome to home page" });
+  });
+  app.use("*", (req, res) => {
+    return res.json({ message: "Page not found" });
   });
 };
 
