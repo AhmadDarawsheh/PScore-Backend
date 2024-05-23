@@ -8,6 +8,9 @@ const initApp = (app, express) => {
   app.use("*", (req, res) => {
     return res.json({ message: "Page not found" });
   });
+  app.use("/", (req, res) => {
+    return res.json({ message: "Welcome to home page" });
+  });
 };
 
 export default initApp;
