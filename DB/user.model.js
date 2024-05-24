@@ -24,18 +24,13 @@ const userSchema = new Schema(
       enum: ["user", "admin", "owner", "player", "manager"],
       default: "user",
     },
-    age: {
-      type: Number,
+    birthDate: {
+      type: Date,
     },
-    salary: Number,
     gender: {
       type: String,
       default: "Male",
       enum: ["Male", "Female"],
-    },
-    ScoreCounter: {
-      type: Number,
-      default: 0,
     },
   },
   {

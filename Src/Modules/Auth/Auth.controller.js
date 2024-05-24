@@ -5,9 +5,9 @@ import { signupValidation } from "./Auth.validation.js";
 
 export const signup = async (req, res) => {
   try {
-    const { userName, email, password, userType , age, } = req.body;
+    const { userName, email, password, userType , birthDate, } = req.body;
     const validationResult = signupValidation.validate(
-      { userName, email, password, age },
+      { userName, email, password },
       {
         abortEarly: false,
       }
@@ -28,7 +28,7 @@ export const signup = async (req, res) => {
       email,
       password: hash,
       userType,
-      age
+      birthDate
     });
 
     //return res.json(hash);
