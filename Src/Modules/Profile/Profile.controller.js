@@ -42,3 +42,8 @@ export const getProfile = async (req, res) => {
     console.error(err);
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+  } catch (err) {}
+};
