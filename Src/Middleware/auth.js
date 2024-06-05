@@ -5,8 +5,6 @@ export const auth = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
 
-    console.log(authorization);
-
     if (!authorization?.startsWith(process.env.BEARERKEY)) {
       return res.json({ message: "Invalid authorization" });
     }
@@ -31,8 +29,6 @@ export const auth = async (req, res, next) => {
 
     req.user = user;
     req.id = user._id;
-    req.name = user.userName;
-    req.type = user.userType;
 
     next();
   } catch (err) {

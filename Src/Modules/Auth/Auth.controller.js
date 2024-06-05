@@ -38,9 +38,9 @@ export const signup = async (req, res) => {
   }
 };
 
-export const generateToken = (userID) => {
+export const generateToken = (userID,userName,email,type) => {
   // console.log("Hi from GenerateToken function");
-  const token = jwt.sign({ id: userID }, process.env.LOGINTOKEN, {
+  const token = jwt.sign({ id: userID, username:userName, email,type}, process.env.LOGINTOKEN, {
     expiresIn: 60 * 60,
   });
   return token;
@@ -61,7 +61,7 @@ export const signin = async (req, res) => {
     if (!match) {
       return res.json({ message: "invalid password" });
     }
-    const token = generateToken(login._id);
+    const token = generateToken(login._id,login.userName,login.email,login.userType);
     // console.log("Suiii");
 
     return res.json({ message: "success", token });
