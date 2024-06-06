@@ -6,10 +6,18 @@ export const createProfile = async (req, res) => {
 
     const profile = await profileModel.findOne({ user: req.id });
 
-    if (profile)
-      return res.status(400).json({
-        message: "Profile already exists. You cannot create another profile.", //checking if use already has a profile
+    if (profile) {
+      const profileUpdate = await profileModel.findOneAndUpdate(
+        { user: req.id },
+        { number, position, country },
+        { new: true }
+      );
+
+      return res.json({
+        message: "You have updated your profile info successfully!",
+        profileUpdate,
       });
+    }
 
     const createProfile = await profileModel.create({
       user: req.id,
@@ -18,7 +26,7 @@ export const createProfile = async (req, res) => {
       country,
     });
 
-    res.json(createProfile);
+    return res.json(createProfile);
   } catch (err) {
     console.log(err);
   }
