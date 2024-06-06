@@ -46,7 +46,7 @@ export const signup = async (req, res) => {
 export const generateToken = (userID) => {
   // console.log("Hi from GenerateToken function");
   const token = jwt.sign(
-    { id: userID, username: userName, email, type },
+    { id: userID},
     process.env.LOGINTOKEN,
     {
       expiresIn: 60 * 60,
