@@ -6,7 +6,7 @@ import profileModel from "../../../DB/profile.model.js";
 
 export const signup = async (req, res) => {
   try {
-    const { userName, email, password, userType , birthDate, } = req.body;
+    const { userName, email, password, userType, birthDate } = req.body;
     const validationResult = signupValidation.validate(
       { userName, email, password },
       {
@@ -29,14 +29,13 @@ export const signup = async (req, res) => {
       email,
       password: hash,
       userType,
-      birthDate
+      birthDate,
     });
 
     const profile = await profileModel.create({
-      user: user._id
-    })
+      user: user._id,
+    });
 
-    
     //return res.json(hash);
     return res.json({ message: "success", user });
   } catch (err) {
@@ -44,11 +43,15 @@ export const signup = async (req, res) => {
   }
 };
 
-export const generateToken = (userID,userName,email,type) => {
+export const generateToken = (userID) => {
   // console.log("Hi from GenerateToken function");
-  const token = jwt.sign({ id: userID, username:userName, email,type}, process.env.LOGINTOKEN, {
-    expiresIn: 60 * 60,
-  });
+  const token = jwt.sign(
+    { id: userID, username: userName, email, type },
+    process.env.LOGINTOKEN,
+    {
+      expiresIn: 60 * 60,
+    }
+  );
   return token;
 };
 
@@ -67,7 +70,7 @@ export const signin = async (req, res) => {
     if (!match) {
       return res.json({ message: "invalid password" });
     }
-    const token = generateToken(login._id,login.userName,login.email,login.userType);
+    const token = generateToken(login._id);
     // console.log("Suiii");
 
     return res.json({ message: "success", token });
