@@ -19,13 +19,6 @@ export const createProfile = async (req, res) => {
       });
     }
 
-    const createProfile = await profileModel.create({
-      user: req.id,
-      number,
-      position,
-      country,
-    });
-
     return res.json(createProfile);
   } catch (err) {
     console.log(err);
@@ -36,22 +29,19 @@ export const getProfile = async (req, res) => {
   try {
     const profile = await profileModel
       .findOne({ user: req.id })
-      .populate("user", "userName");
+      .populate("user", "userName email");
 
-    if (!profile) {
-      return res.json({ message: "Please create your profile!" }); // to check if the user already has a profile(one profile allowed for user)
-    }
-
-    const { user, number, position, country } = profile;
+    const {
+      user,
+      number = "N/A",
+      position = "N/A",
+      country = "N/A",
+    } = profile;
     const userName = user.userName;
+    const email = user.email
 
-    res.json({ userName, number, position, country });
+    res.json({ userName, email, number, position, country });
   } catch (err) {
     console.error(err);
   }
-};
-
-export const updateProfile = async (req, res) => {
-  try {
-  } catch (err) {}
 };

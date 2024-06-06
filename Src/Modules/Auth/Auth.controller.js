@@ -2,6 +2,7 @@ import userModel from "../../../DB/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { signupValidation } from "./Auth.validation.js";
+import profileModel from "../../../DB/profile.model.js";
 
 export const signup = async (req, res) => {
   try {
@@ -31,6 +32,11 @@ export const signup = async (req, res) => {
       birthDate
     });
 
+    const profile = await profileModel.create({
+      user: user._id
+    })
+
+    
     //return res.json(hash);
     return res.json({ message: "success", user });
   } catch (err) {
