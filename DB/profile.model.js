@@ -18,6 +18,10 @@ const profileSchema = new Schema(
       type: String,
       max: 100,
     },
+    image: {
+      type: String,
+      max: 500,
+    },
   },
 
   {

@@ -6,10 +6,15 @@ export const createProfile = async (req, res) => {
 
     const profile = await profileModel.findOne({ user: req.id });
 
+    // if (!req.fileUrl) {
+    //   return res.status(400).json({ message: "No file uploaded." });
+    // }
+
+    const image = req.fileUrl;
     if (profile) {
       const profileUpdate = await profileModel.findOneAndUpdate(
         { user: req.id },
-        { number, position, country },
+        { number, position, country, image },
         { new: true }
       );
 
@@ -36,11 +41,12 @@ export const getProfile = async (req, res) => {
       number = "N/A",
       position = "N/A",
       country = "N/A",
+      image = "",
     } = profile;
     const userName = user.userName;
-    const email = user.email
+    const email = user.email;
 
-    res.json({ userName, email, number, position, country });
+    res.json({ userName, email, number, position, country, image });
   } catch (err) {
     console.error(err);
   }
