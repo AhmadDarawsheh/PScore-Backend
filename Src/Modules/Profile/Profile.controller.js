@@ -44,7 +44,7 @@ export const getProfile = async (req, res) => {
   try {
     const profile = await profileModel
       .findOne({ user: req.id })
-      .populate("user", "userName email userType");
+      .populate("user", "userName email userType birthDate");
 
     const {
       user,
@@ -56,6 +56,11 @@ export const getProfile = async (req, res) => {
     const userName = user.userName;
     const email = user.email;
     const userType = user.userType;
+    const birthdate = user.birthDate;
+
+    const age = calculateAge(birthdate);
+
+    console.log(age);
 
     if (user.userType === "player") {
       return res.json({
@@ -65,12 +70,29 @@ export const getProfile = async (req, res) => {
         number,
         position,
         country,
+        age,
         image,
       });
     } else {
-      return res.json({ userName, email, userType, number, country, image });
+      return res.json({
+        userName,
+        email,
+        userType,
+        number,
+        country,
+        age,
+        image,
+      });
     }
   } catch (err) {
     console.error(err);
   }
+};
+
+const calculateAge = (birthdate) => {
+  const today = new Date();
+
+  let age = today.getFullYear() - birthdate.getFullYear();
+
+  return age;
 };
