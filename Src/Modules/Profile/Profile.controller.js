@@ -4,27 +4,37 @@ export const createProfile = async (req, res) => {
   try {
     const { number, position, country } = req.body;
 
-    const profile = await profileModel.findOne({ user: req.id });
+    // const profile = await profileModel.findOne({ user: req.id });
+    const profile = await profileModel
+      .findOne({ user: req.id })
+      .populate("user", "userType");
 
     // if (!req.fileUrl) {
     //   return res.status(400).json({ message: "No file uploaded." });
     // }
-
+    const { user } = profile;
+    let profileUpdate = {};
     const image = req.fileUrl;
     if (profile) {
-      const profileUpdate = await profileModel.findOneAndUpdate(
-        { user: req.id },
-        { number, position, country, image },
-        { new: true }
-      );
+      if (user.userType === "player") {
+        profileUpdate = await profileModel.findOneAndUpdate(
+          { user: req.id },
+          { number, position, country, image },
+          { new: true }
+        );
+      } else {
+        profileUpdate = await profileModel.findOneAndUpdate(
+          { user: req.id },
+          { number, country, image },
+          { new: true }
+        );
+      }
 
       return res.json({
         message: "You have updated your profile info successfully!",
         profileUpdate,
       });
     }
-
-    return res.json(createProfile);
   } catch (err) {
     console.log(err);
   }
@@ -46,7 +56,11 @@ export const getProfile = async (req, res) => {
     const userName = user.userName;
     const email = user.email;
 
-    res.json({ userName, email, number, position, country, image });
+    if (user.userType === "player") {
+      return res.json({ userName, email, number, position, country, image });
+    } else {
+      return res.json({ userName, email, number, country, image });
+    }
   } catch (err) {
     console.error(err);
   }
