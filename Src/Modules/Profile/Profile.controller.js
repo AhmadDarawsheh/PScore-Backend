@@ -19,13 +19,13 @@ export const createProfile = async (req, res) => {
       if (user.userType === "player") {
         profileUpdate = await profileModel.findOneAndUpdate(
           { user: req.id },
-          { userName : user.userName ,number, position,country, image },
+          { userName: user.userName, number, position, country, image },
           { new: true }
         );
       } else {
         profileUpdate = await profileModel.findOneAndUpdate(
           { user: req.id },
-          { userName : user.userName ,number, country, image },
+          { userName: user.userName, number, country, image },
           { new: true }
         );
       }
@@ -44,7 +44,7 @@ export const getProfile = async (req, res) => {
   try {
     const profile = await profileModel
       .findOne({ user: req.id })
-      .populate("user", "userName email");
+      .populate("user", "userName email userType");
 
     const {
       user,
@@ -55,12 +55,20 @@ export const getProfile = async (req, res) => {
     } = profile;
     const userName = user.userName;
     const email = user.email;
-    const userType = user.userType
+    const userType = user.userType;
 
     if (user.userType === "player") {
-      return res.json({ userName, email, userType,number, position, country, image });
+      return res.json({
+        userName,
+        email,
+        userType,
+        number,
+        position,
+        country,
+        image,
+      });
     } else {
-      return res.json({ userName, email, userType,number, country, image });
+      return res.json({ userName, email, userType, number, country, image });
     }
   } catch (err) {
     console.error(err);
