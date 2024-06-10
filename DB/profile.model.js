@@ -6,6 +6,10 @@ const profileSchema = new Schema(
       ref: "User",
       required: true,
     },
+    userName: {
+      type:String,
+      max:100
+    },
     number: {
       type: String,
       max: 100,
