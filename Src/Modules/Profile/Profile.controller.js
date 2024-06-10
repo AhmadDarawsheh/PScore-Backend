@@ -60,7 +60,6 @@ export const getProfile = async (req, res) => {
 
     const age = calculateAge(birthdate);
 
-    console.log(age);
 
     if (user.userType === "player") {
       return res.json({
