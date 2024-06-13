@@ -166,7 +166,6 @@ export const getTeam = async (req, res) => {
       .populate("user", "userName userType email")
       .select("-_id user position image");
 
-    console.log(playersProfiles);
 
     const playerProfile = playersProfiles.map((profile) => ({
       _id: profile.user._id,
