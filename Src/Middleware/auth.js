@@ -29,7 +29,7 @@ export const auth = async (req, res, next) => {
 
     req.user = user;
     req.id = user._id;
-
+    req.type = user.userType
     next();
   } catch (err) {
     return res.json({ message: "error occured", err });
