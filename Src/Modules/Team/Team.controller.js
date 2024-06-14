@@ -6,9 +6,9 @@ export const createTeam = async (req, res) => {
   try {
     const { teamName } = req.body;
     const checking = await teamModel.findOne({ name: teamName });
-    const managerCheck = await teamModel.findOne({manager : req.id});
-    if(managerCheck){
-      return res.json({message:"You already a manager of a team!"})
+    const managerCheck = await teamModel.findOne({ manager: req.id });
+    if (managerCheck) {
+      return res.json({ message: "You already a manager of a team!" });
     }
     if (checking) return res.json({ message: "Team already exists" });
     console.log(req.type);
@@ -114,7 +114,6 @@ export const addPlayer = async (req, res) => {
         image: playerProfile.image,
       };
       const existingPlayer = await teamModel.findOne({
-        name: teamName,
         manager: req.id,
         players: { $in: [playerId] },
       });
@@ -127,7 +126,6 @@ export const addPlayer = async (req, res) => {
       const team = await teamModel
         .findOneAndUpdate(
           {
-            name: teamName,
             manager: req.id,
           },
           { $push: { players: playerId } },
@@ -150,9 +148,10 @@ export const addPlayer = async (req, res) => {
 
 export const getTeam = async (req, res) => {
   try {
-    const { teamName } = req.query;
+    if (req.type !== "manager")
+      return res.json({ message: "You are not a manager!" });
     const team = await teamModel
-      .findOne({ name: teamName })
+      .findOne({ manager: req.id })
       .populate("manager", "userType userName")
       .populate("players", "userName")
       .select("-players");
@@ -166,6 +165,7 @@ export const getTeam = async (req, res) => {
       .populate("user", "userName userType email")
       .select("-_id user position image");
 
+    console.log(playersProfiles);
 
     const playerProfile = playersProfiles.map((profile) => ({
       _id: profile.user._id,
@@ -175,7 +175,6 @@ export const getTeam = async (req, res) => {
       position: profile.position,
       image: profile.image,
     }));
-
 
     return res.json({ team, playerProfile });
   } catch (err) {
