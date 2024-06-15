@@ -1,4 +1,5 @@
 import profileModel from "../../../DB/profile.model.js";
+import teamModel from "../../../DB/team.model.js";
 
 export const createProfile = async (req, res) => {
   try {
@@ -17,9 +18,19 @@ export const createProfile = async (req, res) => {
     const image = req.fileUrl;
     if (profile) {
       if (user.userType === "player") {
+        const existingPlayer = await teamModel.findOne({
+          players: { $in: [req.id] },
+        });
+        let team;
+        if (existingPlayer) {
+          team = existingPlayer.name;
+        } else {
+          team = "No team";
+        }
+
         profileUpdate = await profileModel.findOneAndUpdate(
           { user: req.id },
-          { userName: user.userName, number, position, country, image },
+          { userName: user.userName, number, position, country, image, team },
           { new: true }
         );
       } else {
@@ -52,6 +63,7 @@ export const getProfile = async (req, res) => {
       position = "N/A",
       country = "N/A",
       image = "",
+      team = "",
     } = profile;
     const userName = user.userName;
     const email = user.email;
@@ -59,7 +71,6 @@ export const getProfile = async (req, res) => {
     const birthdate = user.birthDate;
 
     const age = calculateAge(birthdate);
-
 
     if (user.userType === "player") {
       return res.json({
@@ -71,6 +82,7 @@ export const getProfile = async (req, res) => {
         country,
         age,
         image,
+        team,
       });
     } else {
       return res.json({

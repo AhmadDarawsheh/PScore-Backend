@@ -5,18 +5,25 @@ import profileModel from "./../../../DB/profile.model.js";
 export const createTeam = async (req, res) => {
   try {
     const { teamName } = req.body;
+    const image = req.fileUrl;
     const checking = await teamModel.findOne({ name: teamName });
     const managerCheck = await teamModel.findOne({ manager: req.id });
-    if (managerCheck) {
-      return res.json({ message: "You already a manager of a team!" });
-    }
     if (checking) return res.json({ message: "Team already exists" });
+    if (managerCheck) {
+      const team = await teamModel.findOneAndUpdate(
+        { manager: req.id },
+        { name: teamName, image }
+      );
+
+      return res.json({ message: "Team updated successfully!", team });
+    }
     console.log(req.type);
     if (req.type === "manager") {
       const team = await teamModel.create({
         name: teamName,
         manager: req.id,
         players: [],
+        image,
       });
       return res.json({ team });
     } else {
@@ -155,6 +162,8 @@ export const getTeam = async (req, res) => {
       .populate("manager", "userType userName")
       .populate("players", "userName")
       .select("-players");
+
+    if (!team) return res.json({ message: "No team" });
 
     const playerIds = team.players.map((p) => p._id);
 

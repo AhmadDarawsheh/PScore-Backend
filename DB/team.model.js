@@ -19,6 +19,10 @@ const teamSchema = new Schema(
         ref: "User",
       },
     ],
+    image: {
+      type: String,
+      max: 500,
+    },
   },
   { timestamps: true }
 );

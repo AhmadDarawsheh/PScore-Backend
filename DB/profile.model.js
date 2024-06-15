@@ -7,8 +7,8 @@ const profileSchema = new Schema(
       required: true,
     },
     userName: {
-      type:String,
-      max:100
+      type: String,
+      max: 100,
     },
     number: {
       type: String,
@@ -25,6 +25,10 @@ const profileSchema = new Schema(
     image: {
       type: String,
       max: 500,
+    },
+    team: {
+      type: String,
+      max: 255,
     },
   },
 
