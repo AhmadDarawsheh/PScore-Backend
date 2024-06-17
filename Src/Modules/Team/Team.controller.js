@@ -94,7 +94,7 @@ export const addPlayer = async (req, res) => {
       const teamManager = await teamModel.findOne({ manager: req.id });
       if (!teamManager)
         return res.json({ message: "You are not the manager to this team!" });
-      const { teamName, playerId } = req.params;
+      const {  playerId } = req.params;
 
       const player = await userModel
         .findById(playerId)
