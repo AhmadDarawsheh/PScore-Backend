@@ -119,6 +119,7 @@ export const addPlayer = async (req, res) => {
         userType: player.userType,
         position: playerProfile.position,
         image: playerProfile.image,
+        team: playerProfile.team,
       };
       const existingPlayer = await teamModel.findOne({
         manager: req.id,
