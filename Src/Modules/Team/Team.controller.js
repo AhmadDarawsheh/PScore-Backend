@@ -94,7 +94,7 @@ export const addPlayer = async (req, res) => {
       const teamManager = await teamModel.findOne({ manager: req.id });
       if (!teamManager)
         return res.json({ message: "You are not the manager to this team!" });
-      const {  playerId } = req.params;
+      const { playerId } = req.params;
 
       const player = await userModel
         .findById(playerId)
@@ -143,10 +143,17 @@ export const addPlayer = async (req, res) => {
         .populate("players", "userName")
         .select("name manager players");
 
+      const addTeam = await profileModel.findOneAndUpdate(
+        { user: playerId },
+        { team: team.name },
+        { new: true }
+      );
+
       return res.json({
         message: "Player is added to team successfully!",
         team,
         mergedPlayer,
+        addTeam,
       });
     } else {
       return res.json({ message: "You are not eligible to add a player!" });
