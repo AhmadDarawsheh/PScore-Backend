@@ -53,10 +53,17 @@ export const createProfile = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    const profile = await profileModel
-      .findOne({ user: req.id })
-      .populate("user", "userName email userType birthDate");
-
+    const { playerId } = req.params;
+    let profile;
+    if (playerId) {
+      profile = await profileModel
+        .findOne({ user: playerId })
+        .populate("user", "userName email userType birthDate");
+    } else {
+      profile = await profileModel
+        .findOne({ user: req.id })
+        .populate("user", "userName email userType birthDate");
+    }
     const {
       user,
       number = "N/A",

@@ -1,0 +1,57 @@
+import userModel from "./../../../DB/user.model.js";
+import playgroundModel from "./../../../DB/playground.model.js";
+import ownerModel from "./../../../DB/owner.model.js";
+import bcrypt from "bcryptjs";
+
+export const addPlayground = async (req, res) => {
+  try {
+    const { playgroundName, location, ownerDetails } = req.body;
+    const admin = await userModel.findById(req.id);
+    if (!admin || admin.userType !== "admin") {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    // console.log(ownerDetails);
+    const owner = typeof ownerDetails === 'string' ? JSON.parse(ownerDetails) : ownerDetails;
+    const { userName, email, password } = owner;
+    const hashedPassword = bcrypt.hashSync(
+      password,
+      parseInt(process.env.SALTROUND)
+    );
+
+    const ownerUser = await userModel.create({
+      userName,
+      email,
+      password: hashedPassword,
+      userType: "owner",
+    });
+
+    // console.log(ownerUser);
+
+    const ownerProfile = await ownerModel.create({
+      user: ownerUser._id,
+    })
+
+    // console.log(ownerProfile);
+
+    const [latitude, longitude] = location
+      .split(",")
+      .map((coord) => parseFloat(coord.trim()));
+    const playground = await playgroundModel.create({
+      name: playgroundName,
+      photos: req.fileUrls,
+      location: {
+        type: "Point",
+        coordinates: [longitude, latitude],
+      },
+      owner: ownerUser._id,
+    });
+
+    return res.json({
+      message: "Playground created and owner registered successfully!",
+      playground: playground,
+      owner: ownerUser,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};

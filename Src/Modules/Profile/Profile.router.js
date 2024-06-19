@@ -6,6 +6,7 @@ import { upload, uploadMiddleware } from "../../Middleware/imageUpload.js";
 const app = express();
 
 app.get("/", auth, profileController.getProfile);
+app.get("/:playerId", profileController.getProfile);
 app.post(
   "/create",
   auth,
