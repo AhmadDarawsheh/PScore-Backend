@@ -78,7 +78,7 @@ export const getProfile = async (req, res) => {
     const birthdate = user.birthDate;
 
     const age = calculateAge(birthdate);
-
+    // return in playerprofile the team id image
     if (user.userType === "player") {
       return res.json({
         userName,

@@ -199,6 +199,8 @@ export const getTeam = async (req, res) => {
   }
 };
 
+//getTeam by id when I search.
+
 export const removePlayer = async (req, res) => {
   try {
     console.log(req.type);
@@ -225,11 +227,14 @@ export const removePlayer = async (req, res) => {
         },
         { $pull: { players: playerId } },
         { new: true }
-      );
 
+      
+      );
+      const playerProfile = await profileModel.findOneAndUpdate({user: playerId},{team : "No Team"},{new:true})
       return res.json({
         message: "Player is removed from the team successfully!",
         team,
+        playerProfile
       });
     } else {
       return res.json({ message: "You are not eligible to add a player!" });

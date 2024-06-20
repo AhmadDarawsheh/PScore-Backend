@@ -3,6 +3,7 @@ import connectDB from "../../DB/connection.js";
 import profileRouter from "./Profile/Profile.router.js";
 import teamRouter from "./Team/Team.router.js";
 import playgroundRouter from "./Playground/Playground.router.js";
+import matchRouter from "./Match/match.router.js";
 import cors from "cors";
 
 const initApp = (app, express) => {
@@ -13,6 +14,7 @@ const initApp = (app, express) => {
   app.use("/profile", profileRouter);
   app.use("/team", teamRouter);
   app.use("/playground", playgroundRouter);
+  app.use("/match", matchRouter);
   app.use("/", (req, res) => {
     return res.json({ message: "Welcome to home page" });
   });
