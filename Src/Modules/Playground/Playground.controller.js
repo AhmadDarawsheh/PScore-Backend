@@ -11,7 +11,10 @@ export const addPlayground = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
     // console.log(ownerDetails);
-    const owner = typeof ownerDetails === 'string' ? JSON.parse(ownerDetails) : ownerDetails;
+    const owner =
+      typeof ownerDetails === "string"
+        ? JSON.parse(ownerDetails)
+        : ownerDetails;
     const { userName, email, password } = owner;
     const hashedPassword = bcrypt.hashSync(
       password,
@@ -29,7 +32,7 @@ export const addPlayground = async (req, res) => {
 
     const ownerProfile = await ownerModel.create({
       user: ownerUser._id,
-    })
+    });
 
     // console.log(ownerProfile);
 
@@ -51,6 +54,16 @@ export const addPlayground = async (req, res) => {
       playground: playground,
       owner: ownerUser,
     });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getPlayground = async (req, res) => {
+  try {
+    const playgrounds = await playgroundModel.find({});
+
+    return res.json(playgrounds);
   } catch (err) {
     console.log(err);
   }

@@ -13,5 +13,5 @@ app.post(
   uploadMiddleware,
   playgroundController.addPlayground
 );
-
+app.get("/",playgroundController.getPlayground);
 export default app;
