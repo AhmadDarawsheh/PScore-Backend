@@ -198,3 +198,41 @@ export const getTeam = async (req, res) => {
     console.log(err);
   }
 };
+
+export const removePlayer = async (req, res) => {
+  try {
+    console.log(req.type);
+    if (req.type === "manager") {
+      const teamManager = await teamModel.findOne({ manager: req.id });
+      if (!teamManager)
+        return res.json({ message: "You are not the manager to this team!" });
+      const { playerId } = req.params;
+
+      const existingPlayer = await teamModel.findOne({
+        manager: req.id,
+        players: { $in: [playerId] },
+      });
+
+      if (!existingPlayer) {
+        return res.json({
+          message: "Player not found in the team.",
+        });
+      }
+
+      const team = await teamModel.findOneAndUpdate(
+        {
+          manager: req.id,
+        },
+        { $pull: { players: playerId } },
+        { new: true }
+      );
+
+      return res.json({
+        message: "Player is removed from the team successfully!",
+        team,
+      });
+    } else {
+      return res.json({ message: "You are not eligible to add a player!" });
+    }
+  } catch (err) {}
+};
