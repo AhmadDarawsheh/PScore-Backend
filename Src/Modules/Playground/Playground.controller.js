@@ -2,6 +2,8 @@ import userModel from "./../../../DB/user.model.js";
 import playgroundModel from "./../../../DB/playground.model.js";
 import ownerModel from "./../../../DB/owner.model.js";
 import bcrypt from "bcryptjs";
+import { signupValidation } from './../Auth/Auth.validation.js';
+
 
 export const addPlayground = async (req, res) => {
   try {
