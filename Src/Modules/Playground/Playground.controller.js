@@ -16,6 +16,20 @@ export const addPlayground = async (req, res) => {
         ? JSON.parse(ownerDetails)
         : ownerDetails;
     const { userName, email, password } = owner;
+
+    const validationResult = signupValidation.validate(
+      { userName, email, password },
+      {
+        abortEarly: false,
+      }
+    );
+
+    if (validationResult.error) {
+      const errors = validationResult.error.details.map(
+        (error) => error.message
+      );
+      return res.json({ errors });
+    }
     const hashedPassword = bcrypt.hashSync(
       password,
       parseInt(process.env.SALTROUND)
