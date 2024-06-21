@@ -1,6 +1,7 @@
 import teamModel from "../../../DB/team.model.js";
 import userModel from "./../../../DB/user.model.js";
 import profileModel from "./../../../DB/profile.model.js";
+import matchModel from "./../../../DB/match.model.js";
 
 export const createTeam = async (req, res) => {
   try {
@@ -227,17 +228,64 @@ export const removePlayer = async (req, res) => {
         },
         { $pull: { players: playerId } },
         { new: true }
-
-      
       );
-      const playerProfile = await profileModel.findOneAndUpdate({user: playerId},{team : "No Team"},{new:true})
+      const playerProfile = await profileModel.findOneAndUpdate(
+        { user: playerId },
+        { team: "No Team" },
+        { new: true }
+      );
       return res.json({
         message: "Player is removed from the team successfully!",
         team,
-        playerProfile
+        playerProfile,
       });
     } else {
       return res.json({ message: "You are not eligible to add a player!" });
     }
   } catch (err) {}
+};
+
+export const addMyTeam = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const { others, ...playersObj } = req.body;
+
+    if (req.type !== "manager")
+      return res.json({ message: "You are not a manager!" });
+
+    const team = await teamModel.findOne({ manager: req.id });
+
+    if (!team) {
+      return res.json({ message: "Team not found" });
+    }
+
+    const match = await matchModel.findById(matchId);
+
+    if (!match) {
+      return res.json({ message: "Match not found" });
+    }
+
+    const players = Object.values(playersObj).map((player) => ({
+      playerId: player.id,
+      name: player.playername,
+      photo: player.image,
+    }));
+
+    const othersArray = others.map((item) => ({
+      playerId: item.id,
+      name: item.playername,
+      photo: item.image,
+    }));
+
+    match.team1 = team._id;
+    match.team1Players = players;
+    match.team1others = othersArray;
+    match.status = "pending";
+
+    await match.save();
+
+    return res.json({ message: "Team added to match", match });
+  } catch (err) {
+    console.log(err);
+  }
 };
