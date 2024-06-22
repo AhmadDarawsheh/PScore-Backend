@@ -2,8 +2,7 @@ import userModel from "./../../../DB/user.model.js";
 import playgroundModel from "./../../../DB/playground.model.js";
 import ownerModel from "./../../../DB/owner.model.js";
 import bcrypt from "bcryptjs";
-import { signupValidation } from './../Auth/Auth.validation.js';
-
+import { signupValidation } from "./../Auth/Auth.validation.js";
 
 export const addPlayground = async (req, res) => {
   try {
@@ -55,6 +54,14 @@ export const addPlayground = async (req, res) => {
     const [latitude, longitude] = location
       .split(",")
       .map((coord) => parseFloat(coord.trim()));
+
+    const playgroundNameCheck = await playgroundModel.findOne({
+      name: playgroundName,
+    });
+
+    if (playgroundNameCheck)
+      return res.json({ message: "Playground already exists!" });
+
     const playground = await playgroundModel.create({
       name: playgroundName,
       photos: req.fileUrls,

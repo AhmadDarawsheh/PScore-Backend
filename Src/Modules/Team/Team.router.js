@@ -19,5 +19,6 @@ app.delete("/removeplayer/:playerId", auth, teamController.removePlayer);
 app.post("/joinmatch/:matchId", auth, teamController.addMyTeam);
 app.get("/searchteams", auth, teamController.searchTeam);
 app.post("/inviteteam/:matchId/:teamId", auth, teamController.getTeamById);
+app.post("/inviteteamresponse/:matchId", auth, teamController.inviteResponse);
 
 export default app;

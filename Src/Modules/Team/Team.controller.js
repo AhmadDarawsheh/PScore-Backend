@@ -125,6 +125,13 @@ export const addPlayer = async (req, res) => {
         players: { $in: [playerId] },
       });
 
+      const existingPlayerAny = await teamModel.findOne({
+        players: { $in: [playerId] },
+      });
+      if (existingPlayerAny) {
+        return res.json({ message: "Player is already in a team" });
+      }
+
       if (existingPlayer) {
         return res.json({
           message: "Player is already in the team.",
@@ -315,17 +322,16 @@ export const getTeamById = async (req, res) => {
   try {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });
+    // const { others, ...playersObj } = req.body;
     const { matchId } = req.params;
     const { teamId } = req.params;
+
     const match = await matchModel.findOne({
       $or: [{ team1: teamId }, { team2: teamId }],
     });
     if (match) return res.json({ message: "Team already in a match!" });
 
     const currentMatch = await matchModel.findById(matchId);
-    if (currentMatch.team2 && !currentMatch.team2.equals(invitedTeam._id)) {
-      return res.json({ message: "Another team is already invited" });
-    }
     const managerTeam = await teamModel.findOne({ manager: req.id });
     if (!managerTeam) {
       return res.json({ message: "Manager's team not found" });
@@ -339,14 +345,89 @@ export const getTeamById = async (req, res) => {
     if (!invitedTeam) {
       return res.json({ message: "Invited team not found" });
     }
+    if (currentMatch.team2 && !currentMatch.team2.equals(invitedTeam._id)) {
+      return res.json({ message: "Another team is already invited" });
+    }
 
-    
+    // const players = Object.values(playersObj).map((player) => ({
+    //   playerId: player.id,
+    //   name: player.playername,
+    //   photo: player.image,
+    // }));
 
-    currentMatch.team2 = invitedTeam._id;
+    // const othersArray = others.map((item) => ({
+    //   playerId: item.id,
+    //   name: item.playername,
+    //   photo: item.image,
+    // }));
+
+    currentMatch.invitedTeam = invitedTeam._id;
     currentMatch.invitedTeamResponse = "pending";
+    // currentMatch.team2Players = players;
+    // currentMatch.team2others = othersArray;
     await currentMatch.save();
 
     return res.json({ message: "Team invited to match", currentMatch });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const inviteResponse = async (req, res) => {
+  try {
+    if (req.type !== "manager")
+      return res.json({ message: "You are not a manager" });
+    const { matchId } = req.params;
+    const { response, others, ...playersObj } = req.body;
+
+    const currentMatch = await matchModel.findById(matchId);
+
+    if (!currentMatch) return res.json({ message: "Match not found!" });
+    const invitedTeam = await teamModel.findOne({ manager: req.id });
+
+    if (
+      !invitedTeam ||
+      !currentMatch.invitedTeam ||
+      !currentMatch.invitedTeam.equals(invitedTeam._id)
+    ) {
+      return res.json({ message: "Unauthorized or team not invited" });
+    }
+
+    if (response === "accepted") {
+      const players = Object.values(playersObj).map((player) => ({
+        playerId: player.id,
+        name: player.playername,
+        photo: player.image,
+      }));
+
+      const othersArray = others.map((item) => ({
+        playerId: item.id,
+        name: item.playername,
+        photo: item.image,
+      }));
+
+      currentMatch.invitedTeamResponse = "accepted";
+      currentMatch.team2 = invitedTeam._id;
+      currentMatch.team2Players = players;
+      currentMatch.team2others = othersArray;
+      currentMatch.status = "timed";
+    } else if (response === "rejected") {
+      currentMatch.invitedTeamResponse = "rejected";
+      currentMatch.invitedTeam = null;
+      currentMatch.team2 = null;
+      currentMatch.team1 = null;
+      currentMatch.team1Players = [];
+      currentMatch.team1others = [];
+      currentMatch.team2Players = [];
+      currentMatch.team2others = [];
+      currentMatch.status = "empty";
+    } else {
+      return res.json({ message: "Invalid response" });
+    }
+
+    await currentMatch.save();
+
+    res.json({ message: `Invitation ${response}`, currentMatch });
   } catch (err) {
     console.log(err);
   }
