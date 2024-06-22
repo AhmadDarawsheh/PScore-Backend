@@ -1,5 +1,6 @@
 import matchModel from "../../../DB/match.model.js";
 import playgroundModel from "../../../DB/playground.model.js";
+import dayjs from "dayjs";
 
 export const createMatch = async (req, res) => {
   try {
@@ -21,11 +22,13 @@ export const createMatch = async (req, res) => {
         message: "A match is already scheduled at this time and location",
       });
     }
+
     const playgroundPlace = playground.name;
     const match = await matchModel.create({
       owner: req.id,
       date,
-      time,
+      startTime,
+      endTime,
       location: playground.location,
       status: "empty",
     });
@@ -45,20 +48,14 @@ export const getEmptyMatch = async (req, res) => {
     const { date } = req.body;
     const { playgroundId } = req.params;
 
+
     const playground = await playgroundModel.findById(playgroundId);
 
     if (!playground) return res.json({ message: "Playground not found!" });
 
-    const startDate = new Date(date);
-    const endDate = new Date(date);
-    endDate.setUTCDate(startDate.getUTCDate() + 1);
-
     const match = await matchModel.find({
-      owner: playground.owner,
-      date: {
-        $gte: startDate,
-        $lt: endDate,
-      },
+      owner:playground.owner,
+      date,
       status: "empty",
     });
 

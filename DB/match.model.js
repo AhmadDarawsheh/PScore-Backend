@@ -72,7 +72,7 @@ const matchSchema = new Schema(
       default: "pending",
     },
     date: {
-      type: Date,
+      type: String,
       required: true,
     },
     startTime: {
