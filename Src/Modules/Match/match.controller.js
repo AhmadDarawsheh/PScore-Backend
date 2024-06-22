@@ -49,10 +49,16 @@ export const getEmptyMatch = async (req, res) => {
 
     if (!playground) return res.json({ message: "Playground not found!" });
 
-    console.log(playground.owner);
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    endDate.setUTCDate(startDate.getUTCDate() + 1);
 
     const match = await matchModel.find({
       owner: playground.owner,
+      date: {
+        $gte: startDate,
+        $lt: endDate,
+      },
       status: "empty",
     });
 
