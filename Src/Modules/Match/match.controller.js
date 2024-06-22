@@ -45,8 +45,7 @@ export const createMatch = async (req, res) => {
 
 export const getEmptyMatch = async (req, res) => {
   try {
-    const { date } = req.body;
-    const { playgroundId } = req.params;
+    const { playgroundId,date} = req.params;
 
 
     const playground = await playgroundModel.findById(playgroundId);
