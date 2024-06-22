@@ -45,18 +45,19 @@ export const createMatch = async (req, res) => {
 
 export const getEmptyMatch = async (req, res) => {
   try {
-    const { playgroundId,date} = req.params;
-
+    const { playgroundId, date } = req.params;
 
     const playground = await playgroundModel.findById(playgroundId);
 
     if (!playground) return res.json({ message: "Playground not found!" });
 
-    const match = await matchModel.find({
-      owner:playground.owner,
-      date,
-      status: "empty",
-    });
+    const match = await matchModel
+      .find({
+        owner: playground.owner,
+        date,
+        status: "empty",
+      })
+      .select("_id startTime endTime");
 
     if (!match) return res.json({ message: "No availabe matches." });
 
