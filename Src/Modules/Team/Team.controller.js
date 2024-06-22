@@ -37,7 +37,6 @@ export const createTeam = async (req, res) => {
 
 export const searchPlayers = async (req, res) => {
   try {
-    console.log(req.type);
     if (req.type === "manager") {
       const { name } = req.query;
 
@@ -90,7 +89,6 @@ export const searchPlayers = async (req, res) => {
 
 export const addPlayer = async (req, res) => {
   try {
-    console.log(req.type);
     if (req.type === "manager") {
       const teamManager = await teamModel.findOne({ manager: req.id });
       if (!teamManager)
@@ -200,8 +198,6 @@ export const getTeam = async (req, res) => {
   }
 };
 
-//getTeam by id when I search.
-
 export const removePlayer = async (req, res) => {
   try {
     console.log(req.type);
@@ -245,6 +241,8 @@ export const removePlayer = async (req, res) => {
   } catch (err) {}
 };
 
+//methods for adding teams to a match .
+
 export const addMyTeam = async (req, res) => {
   try {
     const { matchId } = req.params;
@@ -285,6 +283,70 @@ export const addMyTeam = async (req, res) => {
     await match.save();
 
     return res.json({ message: "Team added to match", match });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const searchTeam = async (req, res) => {
+  try {
+    console.log(req.type);
+    if (req.type !== "manager")
+      return res.json({ message: "You cannot search for teams" });
+    const { teamName } = req.query;
+
+    const team = await teamModel
+      .find({
+        name: { $regex: teamName, $options: "i" },
+      })
+      .select("_id name image ");
+
+    if (team.length === 0) {
+      return res.json({ message: "No teams found" });
+    }
+
+    return res.json({ message: "Teams found", team });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getTeamById = async (req, res) => {
+  try {
+    if (req.type !== "manager")
+      return res.json({ message: "You are not a manager" });
+    const { matchId } = req.params;
+    const { teamId } = req.params;
+    const match = await matchModel.findOne({
+      $or: [{ team1: teamId }, { team2: teamId }],
+    });
+    if (match) return res.json({ message: "Team already in a match!" });
+
+    const currentMatch = await matchModel.findById(matchId);
+    if (currentMatch.team2 && !currentMatch.team2.equals(invitedTeam._id)) {
+      return res.json({ message: "Another team is already invited" });
+    }
+    const managerTeam = await teamModel.findOne({ manager: req.id });
+    if (!managerTeam) {
+      return res.json({ message: "Manager's team not found" });
+    }
+
+    if (managerTeam._id.equals(teamId)) {
+      return res.json({ message: "You cannot invite your own team" });
+    }
+
+    const invitedTeam = await teamModel.findById(teamId);
+    if (!invitedTeam) {
+      return res.json({ message: "Invited team not found" });
+    }
+
+    
+
+    currentMatch.team2 = invitedTeam._id;
+    currentMatch.invitedTeamResponse = "pending";
+    await currentMatch.save();
+
+    return res.json({ message: "Team invited to match", currentMatch });
   } catch (err) {
     console.log(err);
   }

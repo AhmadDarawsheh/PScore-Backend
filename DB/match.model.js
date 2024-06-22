@@ -34,7 +34,7 @@ const matchSchema = new Schema(
         {
           playerId: {
             type: Schema.Types.ObjectId,
-            ref: "Player",
+            ref: "User",
           },
           name: String,
           photo: String,
@@ -53,13 +53,23 @@ const matchSchema = new Schema(
         {
           playerId: {
             type: Schema.Types.ObjectId,
-            ref: "Player",
+            ref: "User",
           },
           name: String,
           photo: String,
         },
       ],
       default: [],
+    },
+    invitedTeam: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
+      default: null,
+    },
+    invitedTeamResponse: {
+      type: String,
+      enum: ["accepted", "rejected", "pending"],
+      default: "pending",
     },
     date: {
       type: Date,
