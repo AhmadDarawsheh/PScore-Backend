@@ -43,10 +43,10 @@ export const signup = async (req, res) => {
   }
 };
 
-export const generateToken = (userID) => {
+export const generateToken = (userID,userType) => {
   // console.log("Hi from GenerateToken function");
   const token = jwt.sign(
-    { id: userID},
+    { id: userID, userType:userType},
     process.env.LOGINTOKEN,
     {
       expiresIn: 60 * 60,
@@ -70,7 +70,7 @@ export const signin = async (req, res) => {
     if (!match) {
       return res.json({ message: "invalid password" });
     }
-    const token = generateToken(login._id);
+    const token = generateToken(login._id, login.userType);
     // console.log("Suiii");
 
     return res.json({ message: "success", token });
