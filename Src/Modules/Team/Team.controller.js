@@ -120,10 +120,6 @@ export const addPlayer = async (req, res) => {
         image: playerProfile.image,
         team: playerProfile.team,
       };
-      const existingPlayer = await teamModel.findOne({
-        manager: req.id,
-        players: { $in: [playerId] },
-      });
 
       const existingPlayerAny = await teamModel.findOne({
         players: { $in: [playerId] },
@@ -131,6 +127,11 @@ export const addPlayer = async (req, res) => {
       if (existingPlayerAny) {
         return res.json({ message: "Player is already in a team" });
       }
+
+      const existingPlayer = await teamModel.findOne({
+        manager: req.id,
+        players: { $in: [playerId] },
+      });
 
       if (existingPlayer) {
         return res.json({

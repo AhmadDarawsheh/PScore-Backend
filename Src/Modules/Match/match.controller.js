@@ -5,14 +5,15 @@ export const createMatch = async (req, res) => {
   try {
     if (!req.type === "owner")
       return res.json({ message: "You are not eligible to create a match!" });
-    const { date, time } = req.body;
+    const { date, startTime, endTime } = req.body;
     const playground = await playgroundModel.findOne({ owner: req.id });
 
     if (!playground) return res.json({ message: "Playground not found!" });
     const conflict = await matchModel.findOne({
       "location.coordinates": playground.location.coordinates,
       date,
-      time,
+      startTime,
+      endTime,
     });
 
     if (conflict) {
@@ -34,6 +35,30 @@ export const createMatch = async (req, res) => {
       match,
       playgroundPlace,
     });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getEmptyMatch = async (req, res) => {
+  try {
+    const { date } = req.body;
+    const { playgroundId } = req.params;
+
+    const playground = await playgroundModel.findById(playgroundId);
+
+    if (!playground) return res.json({ message: "Playground not found!" });
+
+    console.log(playground.owner);
+
+    const match = await matchModel.find({
+      owner: playground.owner,
+      status: "empty",
+    });
+
+    if (!match) return res.json({ message: "No availabe matches." });
+
+    return res.json({ message: "success", match });
   } catch (err) {
     console.log(err);
   }

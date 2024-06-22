@@ -25,7 +25,7 @@ export const createProfile = async (req, res) => {
         if (existingPlayer) {
           team = existingPlayer.name;
         } else {
-          team = "No team";
+          team = "No Team";
         }
 
         profileUpdate = await profileModel.findOneAndUpdate(
