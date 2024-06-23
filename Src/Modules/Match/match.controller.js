@@ -10,7 +10,6 @@ export const createMatch = async (req, res) => {
 
     if (!playground) return res.json({ message: "Playground not found!" });
     const conflict = await matchModel.findOne({
-      "location.coordinates": playground.location.coordinates,
       date,
       startTime,
       endTime,
@@ -22,7 +21,6 @@ export const createMatch = async (req, res) => {
       });
     }
 
-    
     const match = await matchModel.create({
       owner: req.id,
       date,
