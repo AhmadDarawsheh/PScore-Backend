@@ -99,6 +99,14 @@ const matchSchema = new Schema(
       enum: ["empty", "pending", "timed"],
       default: "empty",
     },
+    playgroundName: {
+      type: String,
+      max: 500,
+    },
+    playground: {
+      type: Schema.Types.ObjectId,
+      ref: "Playground",
+    },
   },
   { timestamps: true }
 );

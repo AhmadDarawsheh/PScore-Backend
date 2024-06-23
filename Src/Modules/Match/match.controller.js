@@ -22,20 +22,21 @@ export const createMatch = async (req, res) => {
       });
     }
 
-    const playgroundPlace = playground.name;
+    
     const match = await matchModel.create({
       owner: req.id,
       date,
       startTime,
       endTime,
       location: playground.location,
+      playground: playground._id,
+      playgroundName: playground.name,
       status: "empty",
     });
 
     return res.json({
       message: "Match created successfully!",
       match,
-      playgroundPlace,
     });
   } catch (err) {
     console.log(err);
@@ -71,10 +72,9 @@ export const getMatch = async (req, res) => {
     const { matchId } = req.params;
     const match = await matchModel.findById(matchId);
 
-    if(!match ) return res.json({message:"Match not found!"});
+    if (!match) return res.json({ message: "Match not found!" });
 
-    return res.json({message:"Match found : ", match})
-    
+    return res.json({ message: "Match found : ", match });
   } catch (err) {
     console.log(err);
   }

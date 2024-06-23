@@ -415,7 +415,7 @@ export const inviteResponse = async (req, res) => {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });
     const { matchId } = req.params;
-    const { response, others, ...playersObj } = req.body;
+    const { response, inviteId, others, ...playersObj } = req.body;
 
     const currentMatch = await matchModel.findById(matchId);
 
@@ -448,6 +448,8 @@ export const inviteResponse = async (req, res) => {
       currentMatch.team2Players = players;
       currentMatch.team2others = othersArray;
       currentMatch.status = "timed";
+
+      const invite = await invitationModel.findByIdAndDelete(inviteId);
     } else if (response === "rejected") {
       currentMatch.invitedTeamResponse = "rejected";
       currentMatch.invitedTeam = null;
@@ -458,6 +460,8 @@ export const inviteResponse = async (req, res) => {
       currentMatch.team2Players = [];
       currentMatch.team2others = [];
       currentMatch.status = "empty";
+      currentMatch.invitedTeamResponse = "pending";
+      const invite = await invitationModel.findByIdAndDelete(inviteId);
     } else {
       return res.json({ message: "Invalid response" });
     }
