@@ -26,7 +26,6 @@ export const createMatch = async (req, res) => {
       date,
       startTime,
       endTime,
-      location: playground.location,
       playground: playground._id,
       playgroundName: playground.name,
       status: "empty",

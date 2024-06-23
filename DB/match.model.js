@@ -83,17 +83,6 @@ const matchSchema = new Schema(
       type: String,
       required: true,
     },
-    location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true,
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
-    },
     status: {
       type: String,
       enum: ["empty", "pending", "timed"],
@@ -106,14 +95,10 @@ const matchSchema = new Schema(
     playground: {
       type: Schema.Types.ObjectId,
       ref: "Playground",
+      required: true,
     },
   },
   { timestamps: true }
-);
-
-matchSchema.index(
-  { "location.coordinates": 1, date: 1, time: 1 },
-  { unique: true }
 );
 
 const matchModel = model("Match", matchSchema);
