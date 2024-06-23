@@ -66,11 +66,16 @@ export const getEmptyMatch = async (req, res) => {
   }
 };
 
-export const getMatch = async (req,res)=>{
+export const getMatch = async (req, res) => {
   try {
+    const { matchId } = req.params;
+    const match = await matchModel.findById(matchId);
+
+    if(!match ) return res.json({message:"Match not found!"});
+
+    return res.json({message:"Match found : ", match})
     
   } catch (err) {
-    console.log(err)
-    
+    console.log(err);
   }
-}
+};

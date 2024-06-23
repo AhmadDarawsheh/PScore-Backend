@@ -367,8 +367,12 @@ export const getTeamById = async (req, res) => {
     if (currentMatch.team2 && !currentMatch.team2.equals(invitedTeam._id)) {
       return res.json({ message: "Another team is already invited" });
     }
-  
-    if(currentMatch.invitedTeam.equals(invitedTeam._id)) return res.json({message:"Your team already invited"})
+
+    if (
+      currentMatch.invitedTeam &&
+      currentMatch.invitedTeam.equals(invitedTeam._id)
+    )
+      return res.json({ message: "Your team already invited" });
 
     currentMatch.invitedTeam = invitedTeam._id;
     currentMatch.invitedTeamResponse = "pending";
