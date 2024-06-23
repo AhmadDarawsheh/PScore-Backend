@@ -65,3 +65,12 @@ export const getEmptyMatch = async (req, res) => {
     console.log(err);
   }
 };
+
+export const getMatch = async (req,res)=>{
+  try {
+    
+  } catch (err) {
+    console.log(err)
+    
+  }
+}

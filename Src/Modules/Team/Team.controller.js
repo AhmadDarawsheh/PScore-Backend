@@ -251,50 +251,50 @@ export const removePlayer = async (req, res) => {
 
 //methods for adding teams to a match .
 
-export const addMyTeam = async (req, res) => {
-  try {
-    const { matchId } = req.params;
-    const { others, ...playersObj } = req.body;
+// export const addMyTeam = async (req, res) => {
+//   try {
+//     const { matchId } = req.params;
+//     const { others, ...playersObj } = req.body;
 
-    if (req.type !== "manager")
-      return res.json({ message: "You are not a manager!" });
+//     if (req.type !== "manager")
+//       return res.json({ message: "You are not a manager!" });
 
-    const team = await teamModel.findOne({ manager: req.id });
+//     const team = await teamModel.findOne({ manager: req.id });
 
-    if (!team) {
-      return res.json({ message: "Team not found" });
-    }
+//     if (!team) {
+//       return res.json({ message: "Team not found" });
+//     }
 
-    const match = await matchModel.findById(matchId);
+//     const match = await matchModel.findById(matchId);
 
-    if (!match) {
-      return res.json({ message: "Match not found" });
-    }
+//     if (!match) {
+//       return res.json({ message: "Match not found" });
+//     }
 
-    const players = Object.values(playersObj).map((player) => ({
-      playerId: player.id,
-      name: player.playername,
-      photo: player.image,
-    }));
+//     const players = Object.values(playersObj).map((player) => ({
+//       playerId: player.id,
+//       name: player.playername,
+//       photo: player.image,
+//     }));
 
-    const othersArray = others.map((item) => ({
-      playerId: item.id,
-      name: item.playername,
-      photo: item.image,
-    }));
+//     const othersArray = others.map((item) => ({
+//       playerId: item.id,
+//       name: item.playername,
+//       photo: item.image,
+//     }));
 
-    match.team1 = team._id;
-    match.team1Players = players;
-    match.team1others = othersArray;
-    match.status = "pending";
+//     match.team1 = team._id;
+//     match.team1Players = players;
+//     match.team1others = othersArray;
+//     match.status = "pending";
 
-    await match.save();
+//     await match.save();
 
-    return res.json({ message: "Team added to match", match });
-  } catch (err) {
-    console.log(err);
-  }
-};
+//     return res.json({ message: "Team added to match", match });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
 export const searchTeam = async (req, res) => {
   try {
@@ -323,24 +323,42 @@ export const getTeamById = async (req, res) => {
   try {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });
-    // const { others, ...playersObj } = req.body;
+    const { others, ...playersObj } = req.body;
     const { matchId } = req.params;
     const { teamId } = req.params;
+
+    const team = await teamModel.findOne({ manager: req.id });
+
+    if (!team) {
+      return res.json({ message: "Manager's team not found" });
+    }
 
     const match = await matchModel.findOne({
       $or: [{ team1: teamId }, { team2: teamId }],
     });
     if (match) return res.json({ message: "Team already in a match!" });
 
-    const currentMatch = await matchModel.findById(matchId);
-    const managerTeam = await teamModel.findOne({ manager: req.id });
-    if (!managerTeam) {
-      return res.json({ message: "Manager's team not found" });
-    }
-
-    if (managerTeam._id.equals(teamId)) {
+    if (team._id.equals(teamId)) {
       return res.json({ message: "You cannot invite your own team" });
     }
+
+    const currentMatch = await matchModel.findById(matchId);
+    const players = Object.values(playersObj).map((player) => ({
+      playerId: player.id,
+      name: player.playername,
+      photo: player.image,
+    }));
+
+    const othersArray = others.map((item) => ({
+      playerId: item.id,
+      name: item.playername,
+      photo: item.image,
+    }));
+
+    currentMatch.team1 = team._id;
+    currentMatch.team1Players = players;
+    currentMatch.team1others = othersArray;
+    currentMatch.status = "pending";
 
     const invitedTeam = await teamModel.findById(teamId);
     if (!invitedTeam) {
@@ -349,23 +367,11 @@ export const getTeamById = async (req, res) => {
     if (currentMatch.team2 && !currentMatch.team2.equals(invitedTeam._id)) {
       return res.json({ message: "Another team is already invited" });
     }
-
-    // const players = Object.values(playersObj).map((player) => ({
-    //   playerId: player.id,
-    //   name: player.playername,
-    //   photo: player.image,
-    // }));
-
-    // const othersArray = others.map((item) => ({
-    //   playerId: item.id,
-    //   name: item.playername,
-    //   photo: item.image,
-    // }));
+  
+    if(currentMatch.invitedTeam.equals(invitedTeam._id)) return res.json({message:"Your team already invited"})
 
     currentMatch.invitedTeam = invitedTeam._id;
     currentMatch.invitedTeamResponse = "pending";
-    // currentMatch.team2Players = players;
-    // currentMatch.team2others = othersArray;
     await currentMatch.save();
 
     return res.json({ message: "Team invited to match", currentMatch });
