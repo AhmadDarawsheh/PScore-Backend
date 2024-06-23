@@ -2,6 +2,7 @@ import teamModel from "../../../DB/team.model.js";
 import userModel from "./../../../DB/user.model.js";
 import profileModel from "./../../../DB/profile.model.js";
 import matchModel from "./../../../DB/match.model.js";
+import invitationModel from "../../../DB/invitation.model.js";
 
 export const createTeam = async (req, res) => {
   try {
@@ -372,13 +373,38 @@ export const getTeamById = async (req, res) => {
       currentMatch.invitedTeam &&
       currentMatch.invitedTeam.equals(invitedTeam._id)
     )
-      return res.json({ message: "Your team already invited" });
+      return res.json({ message: "Team already invited" });
 
     currentMatch.invitedTeam = invitedTeam._id;
     currentMatch.invitedTeamResponse = "pending";
+
+    const inviteMessage = `${team.name} invited you to a match`;
+
+    const invite = await invitationModel.create({
+      sender: team.manager,
+      reciver: invitedTeam.manager,
+      match: currentMatch._id,
+      message: inviteMessage,
+      image: team.image,
+    });
+
     await currentMatch.save();
 
-    return res.json({ message: "Team invited to match", currentMatch });
+    return res.json({ message: "Team invited to match", currentMatch, invite });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getInvite = async (req, res) => {
+  try {
+    if (req.type !== "manager")
+      return res.json({ message: "You are not a manager!" });
+    const invites = await invitationModel.find({ reciver: req.id });
+
+    if (!invites) return res.json({ message: "No invitations availabe!" });
+
+    return res.json({ message: "Your invitations: ", invites });
   } catch (err) {
     console.log(err);
   }
