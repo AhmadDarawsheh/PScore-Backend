@@ -334,10 +334,7 @@ export const getTeamById = async (req, res) => {
       return res.json({ message: "Manager's team not found" });
     }
 
-    const match = await matchModel.findOne({
-      $or: [{ team1: teamId }, { team2: teamId }],
-    });
-    if (match) return res.json({ message: "Team already in a match!" });
+    
 
     if (team._id.equals(teamId)) {
       return res.json({ message: "You cannot invite your own team" });
