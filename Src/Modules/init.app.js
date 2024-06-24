@@ -6,6 +6,8 @@ import playgroundRouter from "./Playground/Playground.router.js";
 import matchRouter from "./Match/match.router.js";
 import cors from "cors";
 
+import { initSocket } from './socket.js';
+
 const initApp = (app, express) => {
   app.use(cors());
   app.use(express.json());

@@ -107,6 +107,8 @@ export const getTimedMatch = async (req, res) => {
 
       playgroundMatchesMap.get(playgroundId).matches.push({
         id: match._id,
+        startTime: match.startTime,
+        endTime: match.endTime,
         team1: {
           teamName: match.team1 ? match.team1.name : "No team",
           teamimage: match.team1 ? match.team1.image : "",

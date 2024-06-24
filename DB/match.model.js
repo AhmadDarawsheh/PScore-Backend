@@ -97,6 +97,14 @@ const matchSchema = new Schema(
       ref: "Playground",
       required: true,
     },
+    team1Score: {
+      type: Number,
+      default: 0,
+    },
+    team2Score: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
