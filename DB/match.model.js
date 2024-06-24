@@ -97,7 +97,7 @@ const matchSchema = new Schema(
       ref: "Playground",
       required: true,
     },
-    team1Score: {
+        team1Score: {
       type: Number,
       default: 0,
     },

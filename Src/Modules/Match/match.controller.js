@@ -68,7 +68,10 @@ export const getEmptyMatch = async (req, res) => {
 export const getMatch = async (req, res) => {
   try {
     const { matchId } = req.params;
-    const match = await matchModel.findById(matchId).populate("team1","name image").populate("team2","name image")
+    const match = await matchModel
+      .findById(matchId)
+      .populate("team1", "name image")
+      .populate("team2", "name image");
 
     if (!match) return res.json({ message: "Match not found!" });
 
@@ -85,7 +88,7 @@ export const getTimedMatch = async (req, res) => {
     const matches = await matchModel
       .find({
         date,
-        status: "timed",
+        status: { $in: ["timed", "live", "ended"] },
       })
       .populate("team1")
       .populate("team2")
@@ -140,36 +143,39 @@ export const getTimedMatch = async (req, res) => {
   }
 };
 
-const updateMatchStatus = async(match) => {
+const updateMatchStatus = async (match) => {
   const now = new Date();
   const io = getIo();
 
   try {
-    // Fetch match details including populated fields
-    match = await matchModel.findById(match._id)
-      .populate("team1")
-      .populate("team2")
-      .populate("playground", "name");
-
     // Get current time in ISO 8601 format
     const currentISOTime = now.toISOString();
 
-    // Update match status based on current time
-    if (match.startTime <= currentISOTime && currentISOTime < match.endTime && match.status !== "live") {
+    // Construct complete datetime strings for start and end times
+    const matchStartDateTime = new Date(
+      `${match.date}T${match.startTime}`
+    ).toISOString();
+    const matchEndDateTime = new Date(
+      `${match.date}T${match.endTime}`
+    ).toISOString();
+
+    // Update match status based on current time and match datetime
+    if (
+      matchStartDateTime <= currentISOTime &&
+      currentISOTime < matchEndDateTime &&
+      match.status !== "live"
+    ) {
       match.status = "live";
       await match.save();
       io.emit("matchStatusUpdate", { matchId: match._id, status: "live" });
-    } else if (currentISOTime >= match.endTime && match.status !== "ended") {
+    } else if (currentISOTime >= matchEndDateTime && match.status !== "ended") {
       match.status = "ended";
       await match.save();
       io.emit("matchStatusUpdate", { matchId: match._id, status: "ended" });
-    }else{
-      console.log(match.startTime)
-      console.log(match.endTime)
+    } else {
+      console.log("Match status unchanged");
     }
-
   } catch (err) {
     console.error(`Error updating match status for match ${match._id}:`, err);
   }
 };
-
