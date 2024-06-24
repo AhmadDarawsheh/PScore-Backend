@@ -145,7 +145,7 @@ export const getTimedMatch = async (req, res) => {
 
 const updateMatchStatus = async (match) => {
   const now = new Date();
-  const io = getIo();
+  // const io = getIo();
 
   // io.emit("hi", { messgae: "Hello from backend" });
 

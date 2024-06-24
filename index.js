@@ -16,11 +16,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-const PORT = 4000;
+const PORT = 3000;
 const chatGroups = [];
 
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  console.log("Im conncted", socket.id);
 
   socket.on("hello", () => {
     console.log("Hi Nigga");
@@ -29,12 +29,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => console.log("disconnected from", socket.id));
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
-
 initApp(app, express);
 
-app.listen(3000, () => {
-  console.log("listening on port 3000");
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
