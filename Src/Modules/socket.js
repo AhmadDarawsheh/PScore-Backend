@@ -4,34 +4,36 @@ import { Server } from "socket.io";
 let io;
 
 export const initSocket = (app) => {
-  const server = http.createServer(app);
+  if (!io) {
+    const server = http.createServer(app);
 
-  io = new Server(server, {
-    cors: {
-      origin: "*", // Adjust this based on your frontend URL
-      methods: ["GET", "POST"],
-    },
-  });
-
-  io.on("connection", (socket) => {
-    console.log("A user connected", socket.id);
-
-    // Example of an event handler
-    socket.on("hello", () => {
-      console.log("Received hello from client");
-      // socket.emit("hi", { message: "Hello from the server!" });
+    io = new Server(server, {
+      cors: {
+        origin: "*", // Adjust this based on your frontend URL
+        methods: ["GET", "POST"],
+      },
     });
 
-    socket.on("disconnect", () => {
-      console.log("User disconnected");
+    io.on("connection", (socket) => {
+      console.log("A user connected", socket.id);
+
+      socket.on("hello", () => {
+        console.log("Received hello from client");
+        // Example: Emitting back to the client
+        io.emit("hi", { message: "Hello from the server!" });
+      });
+
+      socket.on("disconnect", () => {
+        console.log("User disconnected");
+      });
     });
-  });
 
-  server.listen(4000, () => {
-    console.log(`Socket.io server running on port 4000`);
-  });
+    server.listen(4000, () => {
+      console.log(`Socket.io server running on port 4000`);
+    });
+  }
 
-  return server;
+  return io;
 };
 
 export const getIo = () => {
