@@ -416,6 +416,7 @@ export const inviteResponse = async (req, res) => {
 
     if (!currentMatch) return res.json({ message: "Match not found!" });
     const invitedTeam = await teamModel.findOne({ manager: req.id });
+    const invitedByTeam = await teamModel.findById(currentMatch.team1);
 
     if (
       !invitedTeam ||
@@ -446,7 +447,7 @@ export const inviteResponse = async (req, res) => {
 
       const notify = await invitationModel.create({
         match: currentMatch._id,
-        reciver: currentMatch.team1,
+        reciver: invitedByTeam.manager,
         sender: invitedTeam._id,
         message: `Your invite to ${invitedTeam.name} has been accepted!`,
       });
@@ -466,7 +467,7 @@ export const inviteResponse = async (req, res) => {
 
       const notify = await invitationModel.create({
         match: currentMatch._id,
-        reciver: currentMatch.team1,
+        reciver: invitedByTeam.manager,
         sender: invitedTeam._id,
         message: `Your invite to ${invitedTeam.name} has been rejected!`,
       });
