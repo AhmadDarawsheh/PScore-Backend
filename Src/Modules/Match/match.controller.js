@@ -159,6 +159,8 @@ const updateMatchStatus = async (match) => {
       `${match.date}T${match.endTime}`
     ).toISOString();
 
+    io.emit("toMo", { message: "Hi nigga " });
+
     // Update match status based on current time and match datetime
     if (
       matchStartDateTime <= currentISOTime &&
@@ -167,11 +169,11 @@ const updateMatchStatus = async (match) => {
     ) {
       match.status = "live";
       await match.save();
-      io.emit("matchStatusUpdate", { matchId: match._id, status: "live" });
+      io.emit("matchStatusUpdate", { match });
     } else if (currentISOTime >= matchEndDateTime && match.status !== "ended") {
       match.status = "ended";
       await match.save();
-      io.emit("matchStatusUpdate", { matchId: match._id, status: "ended" });
+      io.emit("matchStatusUpdate", { match });
     } else {
       console.log("Match status unchanged");
     }

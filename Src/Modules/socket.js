@@ -1,7 +1,7 @@
-import http from 'http';
-import { Server } from 'socket.io';
+import http from "http";
+import { Server } from "socket.io";
 
-let io; 
+let io;
 
 export const initSocket = (app) => {
   const server = http.createServer(app);
@@ -13,12 +13,16 @@ export const initSocket = (app) => {
     },
   });
 
-  io.on('connection', socket => {
-    console.log('A user connected');
+  io.on("connection", (socket) => {
+    console.log("A user connected");
 
+    socket.on("hello", () => {
+      console.log("Received hello from client");
+      socket.emit("hi", { message: "Hello from the server!" });
+    });
 
-    socket.on('disconnect', () => {
-      console.log('User disconnected');
+    socket.on("disconnect", () => {
+      console.log("User disconnected");
     });
   });
 
