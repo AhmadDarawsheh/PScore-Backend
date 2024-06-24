@@ -6,10 +6,12 @@ import playgroundRouter from "./Playground/Playground.router.js";
 import matchRouter from "./Match/match.router.js";
 import cors from "cors";
 
-import { initSocket } from './socket.js';
+import { initSocket } from "./socket.js";
 
 const initApp = (app, express) => {
-  app.use(cors());
+  app.use(cors({
+    origin: "*",
+  }));
   app.use(express.json());
   connectDB();
   app.use("/auth", authRouter);
@@ -23,6 +25,10 @@ const initApp = (app, express) => {
   app.use("*", (req, res) => {
     return res.json({ message: "Page not found" });
   });
+
+  const io = initSocket(app);
+
+  return io;
 };
 
 export default initApp;
