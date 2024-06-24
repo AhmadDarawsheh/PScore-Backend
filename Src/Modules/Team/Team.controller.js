@@ -450,6 +450,7 @@ export const inviteResponse = async (req, res) => {
         reciver: invitedByTeam.manager,
         sender: invitedTeam._id,
         message: `Your invite to ${invitedTeam.name} has been accepted!`,
+        image: invitedTeam.image,
       });
 
       const invite = await invitationModel.findByIdAndDelete(inviteId);
@@ -466,10 +467,10 @@ export const inviteResponse = async (req, res) => {
       currentMatch.invitedTeamResponse = "pending";
 
       const notify = await invitationModel.create({
-        match: currentMatch._id,
         reciver: invitedByTeam.manager,
         sender: invitedTeam._id,
         message: `Your invite to ${invitedTeam.name} has been rejected!`,
+        image: invitedTeam.image,
       });
 
       const invite = await invitationModel.findByIdAndDelete(inviteId);

@@ -68,7 +68,7 @@ export const getEmptyMatch = async (req, res) => {
 export const getMatch = async (req, res) => {
   try {
     const { matchId } = req.params;
-    const match = await matchModel.findById(matchId);
+    const match = await matchModel.findById(matchId).populate("team1","name image").populate("team2","name image")
 
     if (!match) return res.json({ message: "Match not found!" });
 
