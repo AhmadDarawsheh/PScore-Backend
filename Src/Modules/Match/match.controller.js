@@ -147,6 +147,8 @@ const updateMatchStatus = async (match) => {
   const now = new Date();
   const io = getIo();
 
+  io.emit("hi", { messgae: "Hello from backend" });
+
   try {
     // Get current time in ISO 8601 format
     const currentISOTime = now.toISOString();
@@ -158,8 +160,6 @@ const updateMatchStatus = async (match) => {
     const matchEndDateTime = new Date(
       `${match.date}T${match.endTime}`
     ).toISOString();
-
-    io.emit("toMo", { message: "Hi nigga " });
 
     // Update match status based on current time and match datetime
     if (
