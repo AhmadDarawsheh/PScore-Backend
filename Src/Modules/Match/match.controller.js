@@ -76,3 +76,56 @@ export const getMatch = async (req, res) => {
     console.log(err);
   }
 };
+
+export const getTimedMatch = async (req, res) => {
+  try {
+    const { date } = req.params;
+
+    const matches = await matchModel
+      .find({
+        date,
+        status: "timed",
+      })
+      .populate("team1")
+      .populate("team2")
+      .populate("playground", "name");
+
+    if (!matches.length) return res.json({ message: "No available matches." });
+
+    // Group matches by playground
+    const playgroundMatchesMap = new Map();
+
+    matches.forEach((match) => {
+      const playgroundId = match.playground._id.toString();
+      if (!playgroundMatchesMap.has(playgroundId)) {
+        playgroundMatchesMap.set(playgroundId, {
+          playgroundName: match.playground.name,
+          id: playgroundId,
+          matches: [],
+        });
+      }
+
+      playgroundMatchesMap.get(playgroundId).matches.push({
+        id: match._id,
+        team1: {
+          teamName: match.team1 ? match.team1.name : "No team",
+          teamimage: match.team1 ? match.team1.image : "",
+        },
+        team2: {
+          teamName: match.team2 ? match.team2.name : "No team",
+          teamimage: match.team2 ? match.team2.image : "",
+        },
+        status: match.status,
+      });
+    });
+
+    const result = Array.from(playgroundMatchesMap.values()).sort((a, b) =>
+      a.playgroundName.localeCompare(b.playgroundName)
+    );
+
+    return res.json({ message: "success", data: result });
+  } catch (err) {
+    console.log(err);
+    return res.json({ message: "Server error" });
+  }
+};

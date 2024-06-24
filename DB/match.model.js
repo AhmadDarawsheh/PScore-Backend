@@ -85,7 +85,7 @@ const matchSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["empty", "pending", "timed"],
+      enum: ["empty", "pending", "timed", "ended", "live"],
       default: "empty",
     },
     playgroundName: {

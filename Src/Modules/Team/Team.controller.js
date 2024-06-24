@@ -334,8 +334,6 @@ export const getTeamById = async (req, res) => {
       return res.json({ message: "Manager's team not found" });
     }
 
-    
-
     if (team._id.equals(teamId)) {
       return res.json({ message: "You cannot invite your own team" });
     }
@@ -446,6 +444,13 @@ export const inviteResponse = async (req, res) => {
       currentMatch.team2others = othersArray;
       currentMatch.status = "timed";
 
+      const notify = await invitationModel.create({
+        match: currentMatch._id,
+        reciver: currentMatch.team1,
+        sender: invitedTeam._id,
+        message: `Your invite to ${invitedTeam.name} has been accepted!`,
+      });
+
       const invite = await invitationModel.findByIdAndDelete(inviteId);
     } else if (response === "rejected") {
       currentMatch.invitedTeamResponse = "rejected";
@@ -458,6 +463,14 @@ export const inviteResponse = async (req, res) => {
       currentMatch.team2others = [];
       currentMatch.status = "empty";
       currentMatch.invitedTeamResponse = "pending";
+
+      const notify = await invitationModel.create({
+        match: currentMatch._id,
+        reciver: currentMatch.team1,
+        sender: invitedTeam._id,
+        message: `Your invite to ${invitedTeam.name} has been rejected!`,
+      });
+
       const invite = await invitationModel.findByIdAndDelete(inviteId);
     } else {
       return res.json({ message: "Invalid response" });
