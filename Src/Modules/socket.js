@@ -14,13 +14,13 @@ export const initSocket = (app) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("A user connected");
+    console.log("A user connected", socket.id);
 
     // Example of an event handler
-    // socket.on("hello", () => {
-    //   console.log("Received hello from client");
-    //   socket.emit("hi", { message: "Hello from the server!" });
-    // });
+    socket.on("hello", () => {
+      console.log("Received hello from client");
+      // socket.emit("hi", { message: "Hello from the server!" });
+    });
 
     socket.on("disconnect", () => {
       console.log("User disconnected");

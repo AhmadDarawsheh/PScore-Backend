@@ -147,7 +147,7 @@ const updateMatchStatus = async (match) => {
   const now = new Date();
   const io = getIo();
 
-  io.emit("hi", { messgae: "Hello from backend" });
+  // io.emit("hi", { messgae: "Hello from backend" });
 
   try {
     // Get current time in ISO 8601 format
