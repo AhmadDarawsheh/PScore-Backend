@@ -1,6 +1,6 @@
 import matchModel from "../../../DB/match.model.js";
 import playgroundModel from "../../../DB/playground.model.js";
-// import { getIo } from "../socket.js";
+import { getIo } from "../socket.js";
 
 export const createMatch = async (req, res) => {
   try {
@@ -109,10 +109,14 @@ export const getTimedMatch = async (req, res) => {
         });
       }
 
-      updateMatchStatus(match);
+      setInterval(() => {
+        updateMatchStatus(match);
+      }, 20000);
 
       const matchInfo = {
         id: match._id,
+        startTime: match.startTime,
+        endTime: match.endTime,
         team1: {
           teamName: match.team1 ? match.team1.name : "No team",
           teamimage: match.team1 ? match.team1.image : "",
@@ -145,9 +149,9 @@ export const getTimedMatch = async (req, res) => {
 
 const updateMatchStatus = async (match) => {
   const now = new Date();
-  // const io = getIo();
+  const io = getIo();
 
-  // io.emit("hi", { messgae: "Hello from backend" });
+  io.emit("hi", { messgae: "Hello bitch" });
 
   try {
     // Get current time in ISO 8601 format
@@ -161,7 +165,6 @@ const updateMatchStatus = async (match) => {
       `${match.date}T${match.endTime}`
     ).toISOString();
 
-    // Update match status based on current time and match datetime
     if (
       matchStartDateTime <= currentISOTime &&
       currentISOTime < matchEndDateTime &&
@@ -169,12 +172,11 @@ const updateMatchStatus = async (match) => {
     ) {
       match.status = "live";
       await match.save();
-      io.emit("matchStatusUpdate", { match });
     } else if (currentISOTime >= matchEndDateTime && match.status !== "ended") {
       match.status = "ended";
       await match.save();
-      io.emit("matchStatusUpdate", { match });
     } else {
+      io.emit("matchStatusUpdate", match);
       console.log("Match status unchanged");
     }
   } catch (err) {
