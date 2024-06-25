@@ -25,10 +25,7 @@ export const initSocket = (app) => {
       });
 
       socket.on("getMatch", async (matchId) => {
-        const match = await matchModel
-          .findById(matchId)
-          .populate("team1", "name image")
-          .populate("team2", "name image");
+        const match = await matchModel.findById(matchId);
 
         const changeStream = matchModel.watch([
           { $match: { "documentKey._id": match._id } },
@@ -36,13 +33,17 @@ export const initSocket = (app) => {
 
         changeStream.on("change", (change) => {
           // Fetch the updated match
-          matchModel.findById(matchId).populate("team1","name image").populate("team2","name image").then((updatedMatch) => {
-            if (updatedMatch) {
-              io.emit("foundmatch", { match: updatedMatch });
-            } else {
-              io.emit("foundmatch", { message: "No match found" });
-            }
-          });
+          matchModel
+            .findById(matchId)
+            .populate("team1", "name image")
+            .populate("team2", "name image")
+            .then((updatedMatch) => {
+              if (updatedMatch) {
+                io.emit("foundmatch", { match: updatedMatch });
+              } else {
+                io.emit("foundmatch", { message: "No match found" });
+              }
+            });
         });
       });
 
