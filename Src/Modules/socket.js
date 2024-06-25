@@ -25,7 +25,10 @@ export const initSocket = (app) => {
       });
 
       socket.on("getMatch", async (matchId) => {
-        const match = await matchModel.findById(matchId);
+        const match = await matchModel
+          .findById(matchId)
+          .populate("team1", "name image")
+          .populate("team2", "name image");
 
         const changeStream = matchModel.watch([
           { $match: { "documentKey._id": match._id } },
