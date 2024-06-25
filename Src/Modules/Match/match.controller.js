@@ -195,6 +195,7 @@ export const addMatchEvents = async (req, res) => {
     match.events.push(event);
 
     if (event.team === "team1") {
+      match.team1Score++;
       const goalId = event.goalId;
       const assistId = event.assistId;
       const playerGolaer = match.team1Players.find((player) =>
@@ -211,6 +212,7 @@ export const addMatchEvents = async (req, res) => {
     }
 
     if (event.team === "team2") {
+      match.team2Score++;
       const goalId = event.goalId;
       const assistId = event.assistId;
 
