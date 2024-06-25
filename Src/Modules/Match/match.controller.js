@@ -109,10 +109,6 @@ export const getTimedMatch = async (req, res) => {
         });
       }
 
-      setInterval(() => {
-        updateMatchStatus(match);
-      }, 20000);
-
       const matchInfo = {
         id: match._id,
         startTime: match.startTime,
@@ -151,7 +147,6 @@ const updateMatchStatus = async (match) => {
   const now = new Date();
   const io = getIo();
 
-  io.emit("hi", { messgae: "Hello bitch" });
 
   try {
     // Get current time in ISO 8601 format

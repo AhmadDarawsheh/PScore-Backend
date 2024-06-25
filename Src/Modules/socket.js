@@ -26,11 +26,21 @@ export const initSocket = (app) => {
 
       socket.on("getMatch", async (matchId) => {
         const match = await matchModel.findById(matchId);
-        if (!match) return io.emit("foundmatch", { message: "No match found" });
 
-        setInterval(() => {
-          io.emit("foundmatch", { match });
-        }, 10000);
+        const changeStream = matchModel.watch([
+          { $match: { "documentKey._id": match._id } },
+        ]);
+
+        changeStream.on("change", (change) => {
+          // Fetch the updated match
+          matchModel.findById(matchId).then((updatedMatch) => {
+            if (updatedMatch) {
+              io.emit("foundmatch", { match: updatedMatch });
+            } else {
+              io.emit("foundmatch", { message: "No match found" });
+            }
+          });
+        });
       });
 
       socket.on("disconnect", () => {
