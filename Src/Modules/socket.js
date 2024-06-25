@@ -28,7 +28,7 @@ export const initSocket = (app) => {
         const match = await matchModel.findById(matchId);
 
         const changeStream = matchModel.watch([
-          { $match: { "documentKey._id": matchId } },
+          { $match: { "documentKey._id": match._id } },
         ]);
 
         changeStream.on("change", (change) => {
