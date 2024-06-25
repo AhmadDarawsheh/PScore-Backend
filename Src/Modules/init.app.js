@@ -6,7 +6,7 @@ import playgroundRouter from "./Playground/Playground.router.js";
 import matchRouter from "./Match/match.router.js";
 import cors from "cors";
 
-import { initSocket } from "./socket.js";
+
 
 const initApp = (app, express) => {
   app.use(cors({}));
@@ -24,9 +24,7 @@ const initApp = (app, express) => {
     return res.json({ message: "Page not found" });
   });
 
-  const io = initSocket(app);
-
-  return io;
+  
 };
 
 export default initApp;
