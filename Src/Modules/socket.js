@@ -36,7 +36,7 @@ export const initSocket = (app) => {
 
         changeStream.on("change", (change) => {
           // Fetch the updated match
-          matchModel.findById(matchId).then((updatedMatch) => {
+          matchModel.findById(matchId).populate("team1","name image").populate("team2","name image").then((updatedMatch) => {
             if (updatedMatch) {
               io.emit("foundmatch", { match: updatedMatch });
             } else {
