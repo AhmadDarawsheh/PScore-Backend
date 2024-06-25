@@ -14,6 +14,14 @@ const playerSchema = new Schema({
     type: String,
     required: true,
   },
+  goals: {
+    type: Number,
+    default: 0,
+  },
+  assists: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const matchSchema = new Schema(
@@ -97,7 +105,7 @@ const matchSchema = new Schema(
       ref: "Playground",
       required: true,
     },
-        team1Score: {
+    team1Score: {
       type: Number,
       default: 0,
     },
@@ -105,6 +113,30 @@ const matchSchema = new Schema(
       type: Number,
       default: 0,
     },
+    events: [
+      {
+        goal: {
+          type: String,
+        },
+        goalId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        assist: {
+          type: String,
+        },
+        assistId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        time: {
+          type: String,
+        },
+        team: {
+          type: String,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

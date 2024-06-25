@@ -147,7 +147,6 @@ const updateMatchStatus = async (match) => {
   const now = new Date();
   const io = getIo();
 
-
   try {
     // Get current time in ISO 8601 format
     const currentISOTime = now.toISOString();
@@ -176,5 +175,57 @@ const updateMatchStatus = async (match) => {
     }
   } catch (err) {
     console.error(`Error updating match status for match ${match._id}:`, err);
+  }
+};
+
+export const addMatchEvents = async (req, res) => {
+  try {
+    if (!req.type === "user")
+      return res.json({ message: "You are not eligible to add events!" });
+
+    console.log(req.type);
+    const { matchId } = req.params;
+    const { event } = req.body;
+    const match = await matchModel.findById(matchId);
+
+    if (!match) return res.json({ message: "Match not found!" });
+
+    console.log(event);
+
+    match.events.push(event);
+
+    if (event.team === "team1") {
+      const goalId = event.goalId;
+      const assistId = event.assistId;
+      const playerGolaer = match.team1Players.find((player) =>
+        player.playerId.equals(goalId)
+      );
+      playerGolaer.goals++;
+      console.log(playerGolaer);
+
+      const playerAssister = match.team1Players.find((player) =>
+        player.playerId.equals(assistId)
+      );
+      playerAssister.assists++;
+      console.log(playerAssister);
+    }
+
+    if (event.team === "team2") {
+      const goalId = event.goalId;
+      const assistId = event.assistId;
+
+      const playerGolaer = match.team2Players.find((player) =>
+        player.playerId.equals(goalId)
+      );
+      const playerAssister = match.team2Players.find((player) =>
+        player.playerId.equals(assistId)
+      );
+    }
+
+    await match.save();
+
+    return res.json({ message: "Event Added Successfully!", match });
+  } catch (err) {
+    console.log(err);
   }
 };
