@@ -8,7 +8,7 @@ export const createNews = async (req, res) => {
     const image = req.fileUrl;
 
     const news = await newsModel.create({
-      publisher:req.id,
+      publisher: req.id,
       title,
       desc: description,
       image,
@@ -18,4 +18,14 @@ export const createNews = async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const getNews = async (req, res) => {
+  try {
+    const news = await newsModel.find();
+
+    if (!news) return res.json({ message: "No News available!" });
+
+    return res.json({message:"News : ", news})
+  } catch (error) {}
 };
