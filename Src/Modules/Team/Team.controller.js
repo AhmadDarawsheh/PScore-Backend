@@ -485,3 +485,9 @@ export const inviteResponse = async (req, res) => {
     console.log(err);
   }
 };
+
+export const getTeamMatches = async (req, res) => {
+  try {
+    
+  } catch (err) {}
+};

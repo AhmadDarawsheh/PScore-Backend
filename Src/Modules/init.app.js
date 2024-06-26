@@ -4,6 +4,7 @@ import profileRouter from "./Profile/Profile.router.js";
 import teamRouter from "./Team/Team.router.js";
 import playgroundRouter from "./Playground/Playground.router.js";
 import matchRouter from "./Match/match.router.js";
+import newsRouter from "./News/news.router.js";
 import cors from "cors";
 
 import { initSocket } from "./socket.js";
@@ -17,6 +18,7 @@ const initApp = (app, express) => {
   app.use("/team", teamRouter);
   app.use("/playground", playgroundRouter);
   app.use("/match", matchRouter);
+  app.use("/news", newsRouter);
   app.use("/", (req, res) => {
     return res.json({ message: "Welcome to home page" });
   });
