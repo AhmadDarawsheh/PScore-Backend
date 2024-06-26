@@ -1,5 +1,6 @@
 import matchModel from "../../../DB/match.model.js";
 import playgroundModel from "../../../DB/playground.model.js";
+import profileModel from "../../../DB/profile.model.js";
 import { getIo } from "../socket.js";
 
 export const createMatch = async (req, res) => {
@@ -201,27 +202,46 @@ export const addMatchEvents = async (req, res) => {
       const playerGolaer = match.team1Players.find((player) =>
         player.playerId.equals(goalId)
       );
+      const goalerProfile = await profileModel.findOne({ user: goalId });
+      goalerProfile.goals++;
       playerGolaer.goals++;
-      console.log(playerGolaer);
+      
+
+      
 
       const playerAssister = match.team1Players.find((player) =>
         player.playerId.equals(assistId)
       );
+      const assisterProfile = await profileModel.findOne({ user: assistId });
+      assisterProfile.assists++;
       playerAssister.assists++;
-      console.log(playerAssister);
+      
+      await goalerProfile.save();
+      await assisterProfile.save()
+
+      
     }
 
     if (event.team === "team2") {
       match.team2Score++;
       const goalId = event.goalId;
       const assistId = event.assistId;
-
       const playerGolaer = match.team2Players.find((player) =>
         player.playerId.equals(goalId)
       );
+      const goalerProfile = await profileModel.findOne({ user: goalId });
+      goalerProfile.goals++;
+      playerGolaer.goals++;
+
       const playerAssister = match.team2Players.find((player) =>
         player.playerId.equals(assistId)
       );
+      const assisterProfile = await profileModel.findOne({ user: assistId });
+      assisterProfile.assists++;
+      playerAssister.assists++;
+
+      await goalerProfile.save();
+      await assisterProfile.save()
     }
 
     await match.save();

@@ -90,6 +90,8 @@ export const getProfile = async (req, res) => {
         age,
         image,
         team,
+        goals,
+        assists,
       });
     } else {
       return res.json({
