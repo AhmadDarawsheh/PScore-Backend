@@ -15,6 +15,9 @@ const newsSchema = new Schema({
   image: {
     type: String,
   },
+  date: {
+    type: String,
+  },
 });
 
 const newsModel = model("News", newsSchema);
