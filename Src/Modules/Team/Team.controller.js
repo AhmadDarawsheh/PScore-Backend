@@ -471,6 +471,7 @@ export const inviteResponse = async (req, res) => {
         sender: invitedTeam._id,
         message: `Your invite to ${invitedTeam.name} has been rejected!`,
         image: invitedTeam.image,
+        match: matchId,
       });
 
       const invite = await invitationModel.findByIdAndDelete(inviteId);
@@ -488,6 +489,5 @@ export const inviteResponse = async (req, res) => {
 
 export const getTeamMatches = async (req, res) => {
   try {
-    
   } catch (err) {}
 };
