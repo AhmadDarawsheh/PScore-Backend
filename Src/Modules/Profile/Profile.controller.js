@@ -71,6 +71,8 @@ export const getProfile = async (req, res) => {
       country = "N/A",
       image = "",
       team = "",
+      goals = 0,
+      assists = 0,
     } = profile;
     const userName = user.userName;
     const email = user.email;

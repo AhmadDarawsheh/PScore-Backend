@@ -207,8 +207,6 @@ export const addMatchEvents = async (req, res) => {
       playerGolaer.goals++;
       
 
-      
-
       const playerAssister = match.team1Players.find((player) =>
         player.playerId.equals(assistId)
       );
