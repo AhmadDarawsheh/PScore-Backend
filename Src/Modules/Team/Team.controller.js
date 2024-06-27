@@ -219,6 +219,7 @@ export const getTeamDetailsById = async (req, res) => {
 
     const myMatches = await matchModel
       .find({
+        status: { $ne: "pending" },
         $or: [{ team1: team._id }, { team2: team._id }],
       })
       .select("team1 team2 team1Score team2Score startTime endTime status date")

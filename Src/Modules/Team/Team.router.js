@@ -15,6 +15,7 @@ app.post(
 app.get("/", auth, teamController.getTeam);
 app.get("/teamdetails/:teamId", teamController.getTeamDetailsById);
 app.get("/mymatches", auth, teamController.getTeamMatches);
+app.get("/dropdownteams", teamController.dropDownTeams);
 // app.get("/mymatchesbyid/:teamId", teamController.getTeamMatchesById);
 app.get("/searchplayers", auth, teamController.searchPlayers);
 app.post("/addplayer/:playerId", auth, teamController.addPlayer);
