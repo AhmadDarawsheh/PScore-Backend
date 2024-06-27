@@ -70,7 +70,6 @@ export const getProfile = async (req, res) => {
           { team2others: { $elemMatch: { playerId } } },
         ],
       });
-
     } else {
       profile = await profileModel
         .findOne({ user: req.id })
@@ -87,7 +86,15 @@ export const getProfile = async (req, res) => {
         ],
       });
     }
-    
+
+    let teamManagerMatches;
+    if (req.type === "manager") {
+      const managerTeam = await teamModel.findOne({ manager: req.id });
+      if (!managerTeam) return res.json({ message: "Your team not found" });
+      teamManagerMatches = await matchModel.find({
+        $or: [{ team1: managerTeam._id }, { team2: managerTeam._id }],
+      });
+    }
 
     const {
       user,
@@ -120,6 +127,17 @@ export const getProfile = async (req, res) => {
         goals,
         assists,
         playerMatches,
+      });
+    } else if (user.userType === "manager") {
+      return res.json({
+        userName,
+        email,
+        userType,
+        number,
+        country,
+        age,
+        image,
+        teamManagerMatches,
       });
     } else {
       return res.json({
