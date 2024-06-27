@@ -190,8 +190,6 @@ export const getTeam = async (req, res) => {
       .populate("user", "userName userType email")
       .select("-_id user position image");
 
-    
-
     const playerProfile = playersProfiles.map((profile) => ({
       _id: profile.user._id,
       userName: profile.user.userName,
@@ -207,11 +205,10 @@ export const getTeam = async (req, res) => {
   }
 };
 
-export const getTeamDetailsById = async(req,res)=>{
+export const getTeamDetailsById = async (req, res) => {
   try {
+    const { teamId } = req.params;
 
-    const {teamId} = req.params
-    
     const team = await teamModel
       .findById(teamId)
       .populate("manager", "userType userName")
@@ -219,6 +216,17 @@ export const getTeamDetailsById = async(req,res)=>{
       .select("-players");
 
     if (!team) return res.json({ message: "No team" });
+
+    const myMatches = await matchModel
+      .find({
+        $or: [{ team1: team._id }, { team2: team._id }],
+      })
+      .select("team1 team2 team1Score team2Score startTime endTime status date")
+      .populate("team1", "-_id name image")
+      .populate("team2", "-_id name image")
+      .sort({ date: 1 });
+
+    if (!myMatches) return res.json({ message: "No available matches!" });
 
     const playerIds = team.players.map((p) => p._id);
 
@@ -229,8 +237,6 @@ export const getTeamDetailsById = async(req,res)=>{
       .populate("user", "userName userType email")
       .select("-_id user position image");
 
-    
-
     const playerProfile = playersProfiles.map((profile) => ({
       _id: profile.user._id,
       userName: profile.user.userName,
@@ -240,13 +246,11 @@ export const getTeamDetailsById = async(req,res)=>{
       image: profile.image,
     }));
 
-    return res.json({ team, playerProfile });
-    
+    return res.json({ team, playerProfile, myMatches });
   } catch (err) {
-    console.log(err)
-    
+    console.log(err);
   }
-}
+};
 
 export const removePlayer = async (req, res) => {
   try {
@@ -361,7 +365,8 @@ export const searchTeam = async (req, res) => {
   }
 };
 
-export const getTeamById = async (req, res) => { // this function to build the team and send an invite
+export const getTeamById = async (req, res) => {
+  // this function to build the team and send an invite
   try {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });
@@ -533,7 +538,7 @@ export const inviteResponse = async (req, res) => {
   }
 };
 
-export const getTeamMatches = async (req, res) => {
+export const getTeamMatches = async (req, res) => {  //myGames
   try {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });
@@ -546,9 +551,9 @@ export const getTeamMatches = async (req, res) => {
       .find({
         $or: [{ team1: team._id }, { team2: team._id }],
       })
-      .select("team1 team2 team1Score team2Score startTime endTime status")
+      .select("team1 team2 team1Score team2Score startTime endTime status date")
       .populate("team1", "-_id name image")
-      .populate("team2", "-_id name image");
+      .populate("team2", "-_id name image").sort({ date: 1 });
 
     if (!myMatches) return res.json({ message: "No available matches!" });
 
@@ -558,26 +563,26 @@ export const getTeamMatches = async (req, res) => {
   }
 };
 
-export const getTeamMatchesById = async (req, res) => {
-  try {
-    const { teamId } = req.params;
+// export const getTeamMatchesById = async (req, res) => {
+//   try {
+//     const { teamId } = req.params;
 
-    const team = await teamModel.findById(teamId);
+//     const team = await teamModel.findById(teamId);
 
-    if (!team) return res.json({ message: "You don't have a team" });
+//     if (!team) return res.json({ message: "You don't have a team" });
 
-    const myMatches = await matchModel
-      .find({
-        $or: [{ team1: team._id }, { team2: team._id }],
-      })
-      .select("team1 team2 team1Score team2Score startTime endTime status")
-      .populate("team1", "-_id name image")
-      .populate("team2", "-_id name image");
+//     const myMatches = await matchModel
+//       .find({
+//         $or: [{ team1: team._id }, { team2: team._id }],
+//       })
+//       .select("team1 team2 team1Score team2Score startTime endTime status")
+//       .populate("team1", "-_id name image")
+//       .populate("team2", "-_id name image");
 
-    if (!myMatches) return res.json({ message: "No available matches!" });
+//     if (!myMatches) return res.json({ message: "No available matches!" });
 
-    return res.json({ message: "You matches : ", myMatches });
-  } catch (err) {
-    console.log(err);
-  }
-};
+//     return res.json({ message: "You matches : ", myMatches });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };

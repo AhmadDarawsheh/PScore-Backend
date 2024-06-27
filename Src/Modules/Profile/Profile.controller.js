@@ -71,10 +71,14 @@ export const getProfile = async (req, res) => {
             { team1others: { $elemMatch: { playerId } } },
             { team2others: { $elemMatch: { playerId } } },
           ],
+          status: { $ne: "pending" },
         })
-        .select("team1 team2 team1Score team2Score startTime endTime status")
+        .select(
+          "team1 team2 team1Score team2Score startTime endTime status date"
+        )
         .populate("team1", "-_id name image")
-        .populate("team2", "-_id name image");
+        .populate("team2", "-_id name image")
+        .sort({ date: 1 });
       matchesNumber = await matchModel
         .find({
           status: "ended",
@@ -85,9 +89,12 @@ export const getProfile = async (req, res) => {
             { team2others: { $elemMatch: { playerId } } },
           ],
         })
-        .select("team1 team2 team1Score team2Score startTime endTime status")
+        .select(
+          "team1 team2 team1Score team2Score startTime endTime status date"
+        )
         .populate("team1", "-_id name image")
-        .populate("team2", "-_id name image");
+        .populate("team2", "-_id name image")
+        .sort({ date: 1 });
     } else {
       profile = await profileModel
         .findOne({ user: req.id })
@@ -103,12 +110,14 @@ export const getProfile = async (req, res) => {
             { team1others: { $elemMatch: { playerId: req.id } } },
             { team2others: { $elemMatch: { playerId: req.id } } },
           ],
+          status: { $ne: "pending" },
         })
-        .select("team1 team2 team1Score team2Score startTime endTime status")
+        .select(
+          "team1 team2 team1Score team2Score startTime endTime status date"
+        )
         .populate("team1", "-_id name image")
-        .populate("team2", "-_id name image");
-
-      
+        .populate("team2", "-_id name image")
+        .sort({ date: 1 });
 
       matchesNumber = await matchModel.find({
         status: "ended",
@@ -119,8 +128,6 @@ export const getProfile = async (req, res) => {
           { team2others: { $elemMatch: { playerId: req.id } } },
         ],
       });
-
-      
     }
 
     let teamManagerMatches;
