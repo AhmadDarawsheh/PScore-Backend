@@ -43,10 +43,10 @@ export const signup = async (req, res) => {
   }
 };
 
-export const generateToken = (userID,userType) => {
+export const generateToken = (userID, userType) => {
   // console.log("Hi from GenerateToken function");
   const token = jwt.sign(
-    { id: userID, userType:userType},
+    { id: userID, userType: userType },
     process.env.LOGINTOKEN,
     {
       expiresIn: 60 * 60,
@@ -76,5 +76,23 @@ export const signin = async (req, res) => {
     return res.json({ message: "success", token });
   } catch (error) {
     return res.json({ message: "error catch", error });
+  }
+};
+
+export const getByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await userModel.findOne({ email });
+    const profile = await profileModel
+      .findOne({
+        user: user._id,
+      })
+      .select("-_id userName , image");
+
+    if (!profile) return res.json({ message: "User has no profile!" });
+
+    return res.json({ messag: "success", profile });
+  } catch (err) {
+    console.log(err);
   }
 };

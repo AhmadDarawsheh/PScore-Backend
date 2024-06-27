@@ -494,5 +494,21 @@ export const inviteResponse = async (req, res) => {
 
 export const getTeamMatches = async (req, res) => {
   try {
-  } catch (err) {}
+    if (req.type !== "manager")
+      return res.json({ message: "You are not a manager" });
+
+    const team = await teamModel.findOne({ manager: req.id });
+
+    if (!team) return res.json({ message: "You don't have a team" });
+
+    const myMatches = await matchModel.find({
+      $or: [{ team1: team._id }, { team2: team._id }],
+    });
+
+    if (!myMatches) return res.json({ message: "No available matches!" });
+
+    return res.json({ message: "You matches : ", myMatches });
+  } catch (err) {
+    console.log(err)
+  }
 };
