@@ -57,6 +57,7 @@ export const getProfile = async (req, res) => {
     const { playerId } = req.params;
     let profile;
     let playerMatches;
+    let matchesNumber;
     if (playerId) {
       profile = await profileModel
         .findOne({ user: playerId })
@@ -74,6 +75,19 @@ export const getProfile = async (req, res) => {
         .select("team1 team2 team1Score team2Score startTime endTime status")
         .populate("team1", "-_id name image")
         .populate("team2", "-_id name image");
+      matchesNumber = await matchModel
+        .find({
+          status: "ended",
+          $or: [
+            { team1Players: { $elemMatch: { playerId } } },
+            { team2Players: { $elemMatch: { playerId } } },
+            { team1others: { $elemMatch: { playerId } } },
+            { team2others: { $elemMatch: { playerId } } },
+          ],
+        })
+        .select("team1 team2 team1Score team2Score startTime endTime status")
+        .populate("team1", "-_id name image")
+        .populate("team2", "-_id name image");
     } else {
       profile = await profileModel
         .findOne({ user: req.id })
@@ -81,16 +95,32 @@ export const getProfile = async (req, res) => {
     }
 
     if (req.type === "player") {
-      playerMatches = await matchModel.find({
+      playerMatches = await matchModel
+        .find({
+          $or: [
+            { team1Players: { $elemMatch: { playerId: req.id } } },
+            { team2Players: { $elemMatch: { playerId: req.id } } },
+            { team1others: { $elemMatch: { playerId: req.id } } },
+            { team2others: { $elemMatch: { playerId: req.id } } },
+          ],
+        })
+        .select("team1 team2 team1Score team2Score startTime endTime status")
+        .populate("team1", "-_id name image")
+        .populate("team2", "-_id name image");
+
+      
+
+      matchesNumber = await matchModel.find({
+        status: "ended",
         $or: [
           { team1Players: { $elemMatch: { playerId: req.id } } },
           { team2Players: { $elemMatch: { playerId: req.id } } },
           { team1others: { $elemMatch: { playerId: req.id } } },
           { team2others: { $elemMatch: { playerId: req.id } } },
         ],
-      }).select("team1 team2 team1Score team2Score startTime endTime status")
-      .populate("team1", "-_id name image")
-      .populate("team2", "-_id name image");
+      });
+
+      
     }
 
     let teamManagerMatches;
@@ -116,6 +146,7 @@ export const getProfile = async (req, res) => {
     const email = user.email;
     const userType = user.userType;
     const birthdate = user.birthDate;
+    const numberOfEndedMatches = matchesNumber.length;
 
     const age = calculateAge(birthdate);
     // return in playerprofile the team id image
@@ -132,6 +163,7 @@ export const getProfile = async (req, res) => {
         team,
         goals,
         assists,
+        numberOfEndedMatches,
         playerMatches,
       });
     } else if (user.userType === "manager") {

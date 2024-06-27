@@ -190,7 +190,7 @@ export const getTeam = async (req, res) => {
       .populate("user", "userName userType email")
       .select("-_id user position image");
 
-    console.log(playersProfiles);
+    
 
     const playerProfile = playersProfiles.map((profile) => ({
       _id: profile.user._id,
@@ -206,6 +206,47 @@ export const getTeam = async (req, res) => {
     console.log(err);
   }
 };
+
+export const getTeamDetailsById = async(req,res)=>{
+  try {
+
+    const {teamId} = req.params
+    
+    const team = await teamModel
+      .findById(teamId)
+      .populate("manager", "userType userName")
+      .populate("players", "userName")
+      .select("-players");
+
+    if (!team) return res.json({ message: "No team" });
+
+    const playerIds = team.players.map((p) => p._id);
+
+    const playersProfiles = await profileModel
+      .find({
+        user: { $in: playerIds },
+      })
+      .populate("user", "userName userType email")
+      .select("-_id user position image");
+
+    
+
+    const playerProfile = playersProfiles.map((profile) => ({
+      _id: profile.user._id,
+      userName: profile.user.userName,
+      email: profile.user.email,
+      userType: profile.user.userType,
+      position: profile.position,
+      image: profile.image,
+    }));
+
+    return res.json({ team, playerProfile });
+    
+  } catch (err) {
+    console.log(err)
+    
+  }
+}
 
 export const removePlayer = async (req, res) => {
   try {
@@ -320,7 +361,7 @@ export const searchTeam = async (req, res) => {
   }
 };
 
-export const getTeamById = async (req, res) => {
+export const getTeamById = async (req, res) => { // this function to build the team and send an invite
   try {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });

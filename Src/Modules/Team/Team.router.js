@@ -13,6 +13,7 @@ app.post(
   teamController.createTeam
 );
 app.get("/", auth, teamController.getTeam);
+app.get("/teamdetails/:teamId", teamController.getTeamDetailsById);
 app.get("/mymatches", auth, teamController.getTeamMatches);
 app.get("/mymatchesbyid/:teamId", teamController.getTeamMatchesById);
 app.get("/searchplayers", auth, teamController.searchPlayers);
