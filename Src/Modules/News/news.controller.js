@@ -23,7 +23,7 @@ export const createNews = async (req, res) => {
 
 export const getNews = async (req, res) => {
   try {
-    const news = await newsModel.find();
+    const news = await newsModel.find().sort({ createdAt: -1 });
 
     if (!news) return res.json({ message: "No News available!" });
 

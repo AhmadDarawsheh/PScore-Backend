@@ -1,24 +1,27 @@
 import { Schema, model } from "mongoose";
 
-const newsSchema = new Schema({
-  publisher: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const newsSchema = new Schema(
+  {
+    publisher: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    title: {
+      type: String,
+    },
+    desc: {
+      type: String,
+    },
+    image: {
+      type: String,
+    },
+    date: {
+      type: String,
+    },
   },
-  title: {
-    type: String,
-  },
-  desc: {
-    type: String,
-  },
-  image: {
-    type: String,
-  },
-  date: {
-    type: String,
-  },
-});
+  { timestamps: true }
+);
 
 const newsModel = model("News", newsSchema);
 
