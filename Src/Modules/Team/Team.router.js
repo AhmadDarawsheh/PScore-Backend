@@ -14,6 +14,7 @@ app.post(
 );
 app.get("/", auth, teamController.getTeam);
 app.get("/mymatches", auth, teamController.getTeamMatches);
+app.get("/mymatchesbyid/:teamId", teamController.getTeamMatchesById);
 app.get("/searchplayers", auth, teamController.searchPlayers);
 app.post("/addplayer/:playerId", auth, teamController.addPlayer);
 app.delete("/removeplayer/:playerId", auth, teamController.removePlayer);

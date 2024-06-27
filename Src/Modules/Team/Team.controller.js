@@ -509,6 +509,27 @@ export const getTeamMatches = async (req, res) => {
 
     return res.json({ message: "You matches : ", myMatches });
   } catch (err) {
-    console.log(err)
+    console.log(err);
+  }
+};
+
+export const getTeamMatchesById = async (req, res) => {
+  try {
+    const {teamId} = req.params
+    
+
+    const team = await teamModel.findById(teamId)
+
+    if (!team) return res.json({ message: "You don't have a team" });
+
+    const myMatches = await matchModel.find({
+      $or: [{ team1: team._id }, { team2: team._id }],
+    });
+
+    if (!myMatches) return res.json({ message: "No available matches!" });
+
+    return res.json({ message: "You matches : ", myMatches });
+  } catch (err) {
+    console.log(err);
   }
 };
