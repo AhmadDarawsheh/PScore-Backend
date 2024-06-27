@@ -592,5 +592,8 @@ export const getTeamMatches = async (req, res) => {
 export const dropDownTeams = async (req, res) => {
   try {
     const teams = await teamModel.find().select("_id name image");
+    if (!teams) return res.json({ message: "No teams found!" });
+
+    return res.json({ message: "teams : ", teams });
   } catch (err) {}
 };
