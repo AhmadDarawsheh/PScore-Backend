@@ -3,6 +3,7 @@ import playgroundModel from "./../../../DB/playground.model.js";
 import ownerModel from "./../../../DB/owner.model.js";
 import bcrypt from "bcryptjs";
 import { signupValidation } from "./../Auth/Auth.validation.js";
+import matchModel from "./../../../DB/match.model.js";
 
 export const addPlayground = async (req, res) => {
   try {
@@ -92,3 +93,26 @@ export const getPlayground = async (req, res) => {
   }
 };
 
+export const getPlaygroundMatches = async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const playgrounds = await playgroundModel.find({ owner: ownerId });
+
+    console.log("hello ppl1");
+
+    if (!playgrounds) return res.json({ message: "No Playground found!" });
+
+    const matchesInPlayground = await matchModel
+      .find({ owner: ownerId })
+      .select("team1 team2 team1Score team2Score startTime endTime status")
+      .populate("team1", "-_id name image")
+      .populate("team2", "-_id name image");
+    console.log("hello ppl2");
+    if (!matchesInPlayground) return res.json({ message: "No matches found!" });
+    console.log("hello ppl3");
+    return res.json({
+      message: "Matches in your playground: ",
+      matchesInPlayground,
+    });
+  } catch (err) {}
+};

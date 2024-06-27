@@ -524,7 +524,9 @@ export const getTeamMatchesById = async (req, res) => {
 
     const myMatches = await matchModel.find({
       $or: [{ team1: team._id }, { team2: team._id }],
-    });
+    }).select("team1 team2 team1Score team2Score startTime endTime status")
+    .populate("team1", "-_id name image")
+    .populate("team2", "-_id name image");
 
     if (!myMatches) return res.json({ message: "No available matches!" });
 
