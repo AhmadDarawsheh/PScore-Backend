@@ -83,11 +83,12 @@ export const getByEmail = async (req, res) => {
   try {
     const { email } = req.params;
     const user = await userModel.findOne({ email });
+    if (!user) return res.json({ message: "User not found!" });
     const profile = await profileModel
       .findOne({
         user: user._id,
       })
-      .select("-_id userName , image");
+      .select("-_id userName image");
 
     if (!profile) return res.json({ message: "User has no profile!" });
 

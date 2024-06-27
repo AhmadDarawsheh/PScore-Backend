@@ -538,7 +538,8 @@ export const inviteResponse = async (req, res) => {
   }
 };
 
-export const getTeamMatches = async (req, res) => {  //myGames
+export const getTeamMatches = async (req, res) => {
+  //myGames
   try {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager" });
@@ -553,7 +554,8 @@ export const getTeamMatches = async (req, res) => {  //myGames
       })
       .select("team1 team2 team1Score team2Score startTime endTime status date")
       .populate("team1", "-_id name image")
-      .populate("team2", "-_id name image").sort({ date: 1 });
+      .populate("team2", "-_id name image")
+      .sort({ date: 1 });
 
     if (!myMatches) return res.json({ message: "No available matches!" });
 
@@ -587,12 +589,8 @@ export const getTeamMatches = async (req, res) => {  //myGames
 //   }
 // };
 
-
-
-export const dropDownTeams = async(req,res)=>{
+export const dropDownTeams = async (req, res) => {
   try {
-    
-  } catch (err) {
-    
-  }
-}
+    const teams = await teamModel.find().select("_id name image");
+  } catch (err) {}
+};
