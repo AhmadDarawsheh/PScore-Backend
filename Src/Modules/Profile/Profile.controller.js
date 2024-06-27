@@ -1,3 +1,4 @@
+import matchModel from "../../../DB/match.model.js";
 import profileModel from "../../../DB/profile.model.js";
 import teamModel from "../../../DB/team.model.js";
 
@@ -55,15 +56,39 @@ export const getProfile = async (req, res) => {
   try {
     const { playerId } = req.params;
     let profile;
+    let playerMatches;
     if (playerId) {
       profile = await profileModel
         .findOne({ user: playerId })
         .populate("user", "userName email userType birthDate");
+
+      playerMatches = await matchModel.find({
+        $or: [
+          { team1Players: { $elemMatch: { playerId } } },
+          { team2Players: { $elemMatch: { playerId } } },
+          { team1others: { $elemMatch: { playerId } } },
+          { team2others: { $elemMatch: { playerId } } },
+        ],
+      });
+
     } else {
       profile = await profileModel
         .findOne({ user: req.id })
         .populate("user", "userName email userType birthDate");
     }
+
+    if (req.type === "player") {
+      playerMatches = await matchModel.find({
+        $or: [
+          { team1Players: { $elemMatch: { playerId: req.id } } },
+          { team2Players: { $elemMatch: { playerId: req.id } } },
+          { team1others: { $elemMatch: { playerId: req.id } } },
+          { team2others: { $elemMatch: { playerId: req.id } } },
+        ],
+      });
+    }
+    
+
     const {
       user,
       number = "N/A",
@@ -94,6 +119,7 @@ export const getProfile = async (req, res) => {
         team,
         goals,
         assists,
+        playerMatches,
       });
     } else {
       return res.json({

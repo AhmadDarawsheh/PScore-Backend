@@ -137,6 +137,14 @@ const matchSchema = new Schema(
         },
       },
     ],
+    invitationExpiration: {
+      type: Date,
+    },
+    invitationStatus: {
+      type: String,
+      enum: ["pending", "expired", "accepted"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

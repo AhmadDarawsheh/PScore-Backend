@@ -383,6 +383,11 @@ export const getTeamById = async (req, res) => {
       image: team.image,
     });
 
+    currentMatch.invitationExpiration = new Date(
+      Date.now() + 4 * 60 * 60 * 1000
+    );
+    currentMatch.invitationStatus = "pending";
+
     await currentMatch.save();
 
     return res.json({ message: "Team invited to match", currentMatch, invite });

@@ -13,7 +13,7 @@ cron.schedule("*/10 * * * * *", async () => {
 
     if (matches.length < 1) return console.log("No match found!");
 
-    console.log(matches);
+    // console.log(matches);
     const now = new Date();
     const io = getIo();
 
@@ -49,4 +49,26 @@ cron.schedule("*/10 * * * * *", async () => {
   } catch (err) {
     console.error("Error updating match status:", err);
   }
+});
+
+const checkForExpiredInvitations = async () => {
+  const now = new Date();
+  const expiredMatches = await matchModel.find({
+    invitationExpiration: { $lte: now },
+    invitationStatus: "pending",
+  });
+
+  for (const match of expiredMatches) {
+    match.status = "empty";
+    match.invitationStatus = "expired";
+    match.invitedTeam = null;
+    match.invitationExpiration = null;
+    match.invitedTeamResponse = null;
+    await match.save();
+    console.log(match);
+  }
+};
+
+cron.schedule("*/5 * * * *", () => {
+  checkForExpiredInvitations();
 });
