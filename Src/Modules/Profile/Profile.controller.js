@@ -153,7 +153,10 @@ export const getProfile = async (req, res) => {
     const email = user.email;
     const userType = user.userType;
     const birthdate = user.birthDate;
-    const numberOfEndedMatches = matchesNumber.length;
+    let numberOfEndedMatches;
+    if (matchesNumber) {
+      numberOfEndedMatches = matchesNumber.length;
+    }
 
     const age = calculateAge(birthdate);
     // return in playerprofile the team id image
@@ -196,7 +199,7 @@ export const getProfile = async (req, res) => {
       });
     }
   } catch (err) {
-    console.error(err);
+    return res.json(err);
   }
 };
 

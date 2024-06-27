@@ -586,3 +586,13 @@ export const getTeamMatches = async (req, res) => {  //myGames
 //     console.log(err);
 //   }
 // };
+
+
+
+export const dropDownTeams = async(req,res)=>{
+  try {
+    
+  } catch (err) {
+    
+  }
+}
