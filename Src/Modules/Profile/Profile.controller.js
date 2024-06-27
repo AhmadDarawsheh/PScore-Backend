@@ -62,14 +62,18 @@ export const getProfile = async (req, res) => {
         .findOne({ user: playerId })
         .populate("user", "userName email userType birthDate");
 
-      playerMatches = await matchModel.find({
-        $or: [
-          { team1Players: { $elemMatch: { playerId } } },
-          { team2Players: { $elemMatch: { playerId } } },
-          { team1others: { $elemMatch: { playerId } } },
-          { team2others: { $elemMatch: { playerId } } },
-        ],
-      });
+      playerMatches = await matchModel
+        .find({
+          $or: [
+            { team1Players: { $elemMatch: { playerId } } },
+            { team2Players: { $elemMatch: { playerId } } },
+            { team1others: { $elemMatch: { playerId } } },
+            { team2others: { $elemMatch: { playerId } } },
+          ],
+        })
+        .select("team1 team2 team1Score team2Score startTime endTime status")
+        .populate("team1", "-_id name image")
+        .populate("team2", "-_id name image");
     } else {
       profile = await profileModel
         .findOne({ user: req.id })
@@ -84,7 +88,9 @@ export const getProfile = async (req, res) => {
           { team1others: { $elemMatch: { playerId: req.id } } },
           { team2others: { $elemMatch: { playerId: req.id } } },
         ],
-      });
+      }).select("team1 team2 team1Score team2Score startTime endTime status")
+      .populate("team1", "-_id name image")
+      .populate("team2", "-_id name image");
     }
 
     let teamManagerMatches;
