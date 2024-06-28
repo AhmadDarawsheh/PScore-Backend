@@ -553,9 +553,10 @@ export const getTeamMatches = async (req, res) => {
       .find({
         $or: [{ team1: team._id }, { team2: team._id }],
       })
-      .select("team1 team2 team1Score team2Score startTime endTime status date")
+      .select("team1 team2 team1Score team2Score startTime endTime status date invitedTeam")
       .populate("team1", "-_id name image")
       .populate("team2", "-_id name image")
+      .populate("invitedTeam", "-_id name image")
       .sort({ date: 1 });
 
     if (!myMatches) return res.json({ message: "No available matches!" });
