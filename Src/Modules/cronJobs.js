@@ -15,7 +15,7 @@ const updateRecentResults = async (teamId, result) => {
   if (team.recentResults.length > 4) {
     team.recentResults.shift(); // Keep only the last 4 results
   }
-  console.log("Hi there");
+  
   await team.save();
 };
 
