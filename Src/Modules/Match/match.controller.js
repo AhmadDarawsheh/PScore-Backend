@@ -205,7 +205,6 @@ export const addMatchEvents = async (req, res) => {
       const goalerProfile = await profileModel.findOne({ user: goalId });
       goalerProfile.goals++;
       playerGolaer.goals++;
-      
 
       const playerAssister = match.team1Players.find((player) =>
         player.playerId.equals(assistId)
@@ -213,11 +212,9 @@ export const addMatchEvents = async (req, res) => {
       const assisterProfile = await profileModel.findOne({ user: assistId });
       assisterProfile.assists++;
       playerAssister.assists++;
-      
-      await goalerProfile.save();
-      await assisterProfile.save()
 
-      
+      await goalerProfile.save();
+      await assisterProfile.save();
     }
 
     if (event.team === "team2") {
@@ -239,12 +236,37 @@ export const addMatchEvents = async (req, res) => {
       playerAssister.assists++;
 
       await goalerProfile.save();
-      await assisterProfile.save()
+      await assisterProfile.save();
     }
 
     await match.save();
 
     return res.json({ message: "Event Added Successfully!", match });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getMatchByOwnerId = async (req, res) => {
+  try {
+    if (req.type !== "owner")
+      return res.json({ message: "you are not an owner" });
+
+    const playground = await playgroundModel.findOne({ owner: req.id });
+
+    if (!playground) return res.json({ message: "Playground not found!" });
+
+    const match = await matchModel
+      .find({
+        owner: playground.owner,
+        status: "empty",
+      })
+      .select("_id startTime endTime date status")
+      .sort({ date: 1 });
+
+    if (!match) return res.json({ message: "No availabe matches." });
+
+    return res.json({ message: "success", match });
   } catch (err) {
     console.log(err);
   }

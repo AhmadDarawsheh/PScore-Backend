@@ -10,4 +10,10 @@ app.get("/gettimedmatch/:date", matchController.getTimedMatch);
 app.get("/getmatch/:matchId", matchController.getMatch);
 app.post("/addmatchevent/:matchId", auth, matchController.addMatchEvents);
 
+app.get(
+    "/getemptymatchbyowner",
+    auth,
+    matchController.getMatchByOwnerId
+  );
+
 export default app;
