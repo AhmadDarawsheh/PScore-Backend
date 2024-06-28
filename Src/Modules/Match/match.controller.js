@@ -1,6 +1,7 @@
 import matchModel from "../../../DB/match.model.js";
 import playgroundModel from "../../../DB/playground.model.js";
 import profileModel from "../../../DB/profile.model.js";
+import teamModel from "../../../DB/team.model.js";
 import { getIo } from "../socket.js";
 
 export const createMatch = async (req, res) => {
@@ -265,8 +266,59 @@ export const getMatchByOwnerId = async (req, res) => {
       .sort({ date: 1 });
 
     if (!match) return res.json({ message: "No availabe matches." });
+    let plname = playground.name;
+    return res.json({ message: "success", plname, match });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-    return res.json({ message: "success", match });
+export const getMatchByOwnerIdPending = async (req, res) => {
+  try {
+    if (req.type !== "owner")
+      return res.json({ message: "you are not an owner" });
+
+    const playground = await playgroundModel.findOne({ owner: req.id });
+
+    if (!playground) return res.json({ message: "Playground not found!" });
+
+    const match = await matchModel
+      .find({
+        owner: playground.owner,
+        status: "pending",
+      })
+      .select("_id startTime endTime date status team1")
+      .sort({ date: 1 });
+
+    if (match.length === 0) {
+      return res.json({ message: "No available matches." });
+    }
+
+    const matchDetails = await Promise.all(
+      match.map(async (match) => {
+        const team = await teamModel.findById(match.team1);
+        if (!team) {
+          return { message: "Team not found" };
+        }
+
+        const managerProfile = await profileModel
+          .findOne({
+            user: team.manager,
+          })
+          .select("-_id userName number");
+        if (!managerProfile) {
+          return { message: "Manager not found" };
+        }
+
+        return {
+          match,
+          managerProfile,
+        };
+      })
+    );
+    const plname = playground.name
+
+    return res.json({ message: "success", plname, matchDetails });
   } catch (err) {
     console.log(err);
   }

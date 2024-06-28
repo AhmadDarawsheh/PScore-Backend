@@ -15,5 +15,10 @@ app.get(
     auth,
     matchController.getMatchByOwnerId
   );
+app.get(
+    "/getemptymatchbyownerpending",
+    auth,
+    matchController.getMatchByOwnerIdPending
+  );
 
 export default app;
