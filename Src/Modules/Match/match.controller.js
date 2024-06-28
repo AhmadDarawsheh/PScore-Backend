@@ -73,8 +73,8 @@ export const getMatch = async (req, res) => {
     const { matchId } = req.params;
     const match = await matchModel
       .findById(matchId)
-      .populate("team1", "name image")
-      .populate("team2", "name image");
+      .populate("team1", "name image recentResults")
+      .populate("team2", "name image recentResults");
 
     if (!match) return res.json({ message: "Match not found!" });
 
@@ -214,7 +214,7 @@ export const addMatchEvents = async (req, res) => {
             team: "$team",
           },
           distinctFans: { $addToSet: "$fan" },
-          earliestTime: { $min: "$time" } // Use $min to get earliest time based on 'time' attribute
+          earliestTime: { $min: "$time" }, // Use $min to get earliest time based on 'time' attribute
         },
       },
       {
@@ -224,7 +224,7 @@ export const addMatchEvents = async (req, res) => {
           match: "$_id.match",
           team: "$_id.team",
           reportCount: { $size: "$distinctFans" },
-          earliestTime: 1 // Include earliestTime in the projection
+          earliestTime: 1, // Include earliestTime in the projection
         },
       },
     ]);
