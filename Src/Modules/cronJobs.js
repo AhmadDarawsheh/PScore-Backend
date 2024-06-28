@@ -4,6 +4,20 @@ import { getIo } from "./socket.js"; // Import the io instance
 
 const parseTime = (timeStr) => new Date(timeStr);
 
+const updateRecentResults = async (teamId, result) => {
+  const team = await teamModel.findById(teamId);
+  if (!team) {
+    throw new Error("Team not found");
+  }
+
+  team.recentResults.push(result);
+  if (team.recentResults.length > 4) {
+    team.recentResults.shift(); // Keep only the last 4 results
+  }
+
+  await team.save();
+};
+
 cron.schedule("*/10 * * * * *", async () => {
   try {
     console.log("hello from cron");
@@ -41,6 +55,21 @@ cron.schedule("*/10 * * * * *", async () => {
         match.status !== "ended"
       ) {
         match.status = "ended";
+        const team1Result =
+          match.team1Score > match.team2Score
+            ? "W"
+            : match.team1Score < match.team2Score
+            ? "L"
+            : "D";
+        const team2Result =
+          match.team1Score < match.team2Score
+            ? "W"
+            : match.team1Score > match.team2Score
+            ? "L"
+            : "D";
+
+        await updateRecentResults(match.team1, team1Result);
+        await updateRecentResults(match.team2, team2Result);
         await match.save();
       } else {
         console.log("Match status unchanged");

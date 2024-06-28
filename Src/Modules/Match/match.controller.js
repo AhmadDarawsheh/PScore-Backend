@@ -214,6 +214,7 @@ export const addMatchEvents = async (req, res) => {
             team: "$team",
           },
           distinctFans: { $addToSet: "$fan" },
+          earliestTime: { $min: "$time" } // Use $min to get earliest time based on 'time' attribute
         },
       },
       {
@@ -223,6 +224,7 @@ export const addMatchEvents = async (req, res) => {
           match: "$_id.match",
           team: "$_id.team",
           reportCount: { $size: "$distinctFans" },
+          earliestTime: 1 // Include earliestTime in the projection
         },
       },
     ]);
@@ -233,6 +235,7 @@ export const addMatchEvents = async (req, res) => {
       return res.json({ message: "You are not eligble to add an event" });
 
     if (fanProfile.trustLevel >= 100) {
+      event.time = reportsCount[0].earliestTime;
       match.events.push(event);
 
       if (event.team === "team1") {
@@ -320,6 +323,7 @@ export const addMatchEvents = async (req, res) => {
 
       fanProfile.trustLevel += 10;
     } else if (reportsCount[0].reportCount >= 3) {
+      event.time = reportsCount[0].earliestTime;
       match.events.push(event);
 
       if (event.team === "team1") {
@@ -400,9 +404,9 @@ export const addMatchEvents = async (req, res) => {
         goaler: event.goalId,
         assister: event.assistId,
         match: match._id,
-        team: event.team
+        team: event.team,
       });
-    
+
       // Update trustLevel for each unique fan
       await profileModel.updateMany(
         { user: { $in: uniqueFans } },
@@ -419,7 +423,7 @@ export const addMatchEvents = async (req, res) => {
       });
     }
 
-    return res.json({ message: "Event Added Successfully!", match, report });
+    return res.json({ message: "Event Added Successfully!", match });
   } catch (err) {
     console.log(err);
   }
