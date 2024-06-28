@@ -93,6 +93,19 @@ export const getPlayground = async (req, res) => {
   }
 };
 
+export const getPlaygroundForAdmin = async (req, res) => {
+  try {
+    const playgrounds = await playgroundModel
+      .find({})
+      .select("name owner")
+      .populate("owner", "userName email");
+
+    return res.json(playgrounds);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const getPlaygroundMatches = async (req, res) => {
   try {
     const { ownerId } = req.params;

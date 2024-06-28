@@ -23,6 +23,12 @@ const teamSchema = new Schema(
       type: String,
       max: 500,
     },
+    recentResults: [
+      {
+        type: String,
+        enum: ["W", "L", "D"],
+      },
+    ],
   },
   { timestamps: true }
 );

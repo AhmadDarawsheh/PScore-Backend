@@ -13,5 +13,6 @@ app.post(
   playgroundController.addPlayground
 );
 app.get("/", playgroundController.getPlayground);
+app.get("/admin", playgroundController.getPlaygroundForAdmin);
 app.get("/playgroundmatches/:ownerId", playgroundController.getPlaygroundMatches);
 export default app;

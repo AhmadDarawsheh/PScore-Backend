@@ -1,6 +1,7 @@
 import matchModel from "../../../DB/match.model.js";
 import playgroundModel from "../../../DB/playground.model.js";
 import profileModel from "../../../DB/profile.model.js";
+import reportModel from "../../../DB/report.model.js";
 import teamModel from "../../../DB/team.model.js";
 import { getIo } from "../socket.js";
 
@@ -194,55 +195,231 @@ export const addMatchEvents = async (req, res) => {
 
     console.log(event);
 
-    match.events.push(event);
+    const report = await reportModel.create({
+      match: matchId,
+      fan: req.id,
+      goaler: event.goalId,
+      assister: event.assistId,
+      time: event.time,
+      team: event.team,
+    });
 
-    if (event.team === "team1") {
-      match.team1Score++;
-      const goalId = event.goalId;
-      const assistId = event.assistId;
-      const playerGolaer = match.team1Players.find((player) =>
-        player.playerId.equals(goalId)
+    const reportsCount = await reportModel.aggregate([
+      {
+        $group: {
+          _id: {
+            goaler: "$goaler",
+            assister: "$assister",
+            match: "$match",
+            team: "$team",
+          },
+          distinctFans: { $addToSet: "$fan" },
+        },
+      },
+      {
+        $project: {
+          goaler: "$_id.goaler",
+          assister: "$_id.assister",
+          match: "$_id.match",
+          team: "$_id.team",
+          reportCount: { $size: "$distinctFans" },
+        },
+      },
+    ]);
+
+    const fanProfile = await profileModel.findOne({ user: req.id });
+
+    if (!fanProfile)
+      return res.json({ message: "You are not eligble to add an event" });
+
+    if (fanProfile.trustLevel >= 100) {
+      match.events.push(event);
+
+      if (event.team === "team1") {
+        match.team1Score++;
+        const goalId = event.goalId;
+        const assistId = event.assistId;
+        const playerGolaer = match.team1Players.find((player) =>
+          player.playerId.equals(goalId)
+        );
+        const goalerProfile = await profileModel.findOne({ user: goalId });
+        goalerProfile.goals++;
+        playerGolaer.goals++;
+
+        const playerAssister = match.team1Players.find((player) =>
+          player.playerId.equals(assistId)
+        );
+        const assisterProfile = await profileModel.findOne({
+          user: assistId,
+        });
+        assisterProfile.assists++;
+        playerAssister.assists++;
+
+        await goalerProfile.save();
+        await assisterProfile.save();
+      }
+
+      if (event.team === "team2") {
+        match.team2Score++;
+        const goalId = event.goalId;
+        const assistId = event.assistId;
+        const playerGolaer = match.team2Players.find((player) =>
+          player.playerId.equals(goalId)
+        );
+        const goalerProfile = await profileModel.findOne({ user: goalId });
+        goalerProfile.goals++;
+        playerGolaer.goals++;
+
+        const playerAssister = match.team2Players.find((player) =>
+          player.playerId.equals(assistId)
+        );
+        const assisterProfile = await profileModel.findOne({
+          user: assistId,
+        });
+        assisterProfile.assists++;
+        playerAssister.assists++;
+
+        await goalerProfile.save();
+        await assisterProfile.save();
+      }
+
+      await match.save();
+
+      const reportCountsAgg = await reportModel.aggregate([
+        {
+          $group: {
+            _id: {
+              goaler: "$goaler",
+              assister: "$assister",
+              match: "$match",
+              team: "$team",
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            goaler: "$_id.goaler",
+            assister: "$_id.assister",
+            match: "$_id.match",
+            team: "$_id.team",
+            count: 1,
+          },
+        },
+      ]);
+
+      const deleteResult = await reportModel.deleteMany({
+        $or: reportCountsAgg.map((report) => ({
+          goaler: report.goaler,
+          assister: report.assister,
+          match: report.match,
+          team: report.team,
+        })),
+      });
+
+      fanProfile.trustLevel += 10;
+    } else if (reportsCount[0].reportCount >= 3) {
+      match.events.push(event);
+
+      if (event.team === "team1") {
+        match.team1Score++;
+        const goalId = event.goalId;
+        const assistId = event.assistId;
+        const playerGolaer = match.team1Players.find((player) =>
+          player.playerId.equals(goalId)
+        );
+        const goalerProfile = await profileModel.findOne({ user: goalId });
+        goalerProfile.goals++;
+        playerGolaer.goals++;
+
+        const playerAssister = match.team1Players.find((player) =>
+          player.playerId.equals(assistId)
+        );
+        const assisterProfile = await profileModel.findOne({
+          user: assistId,
+        });
+        assisterProfile.assists++;
+        playerAssister.assists++;
+
+        await goalerProfile.save();
+        await assisterProfile.save();
+      }
+
+      if (event.team === "team2") {
+        match.team2Score++;
+        const goalId = event.goalId;
+        const assistId = event.assistId;
+        const playerGolaer = match.team2Players.find((player) =>
+          player.playerId.equals(goalId)
+        );
+        const goalerProfile = await profileModel.findOne({ user: goalId });
+        goalerProfile.goals++;
+        playerGolaer.goals++;
+
+        const playerAssister = match.team2Players.find((player) =>
+          player.playerId.equals(assistId)
+        );
+        const assisterProfile = await profileModel.findOne({
+          user: assistId,
+        });
+        assisterProfile.assists++;
+        playerAssister.assists++;
+
+        await goalerProfile.save();
+        await assisterProfile.save();
+      }
+
+      await match.save();
+
+      const reportCountsAgg = await reportModel.aggregate([
+        {
+          $group: {
+            _id: {
+              goaler: "$goaler",
+              assister: "$assister",
+              match: "$match",
+              team: "$team",
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            goaler: "$_id.goaler",
+            assister: "$_id.assister",
+            match: "$_id.match",
+            team: "$_id.team",
+            count: 1,
+          },
+        },
+      ]);
+
+      const uniqueFans = await reportModel.distinct("fan", {
+        goaler: event.goalId,
+        assister: event.assistId,
+        match: match._id,
+        team: event.team
+      });
+    
+      // Update trustLevel for each unique fan
+      await profileModel.updateMany(
+        { user: { $in: uniqueFans } },
+        { $inc: { trustLevel: 10 } }
       );
-      const goalerProfile = await profileModel.findOne({ user: goalId });
-      goalerProfile.goals++;
-      playerGolaer.goals++;
 
-      const playerAssister = match.team1Players.find((player) =>
-        player.playerId.equals(assistId)
-      );
-      const assisterProfile = await profileModel.findOne({ user: assistId });
-      assisterProfile.assists++;
-      playerAssister.assists++;
-
-      await goalerProfile.save();
-      await assisterProfile.save();
+      const deleteResult = await reportModel.deleteMany({
+        $or: reportCountsAgg.map((report) => ({
+          goaler: report.goaler,
+          assister: report.assister,
+          match: report.match,
+          team: report.team,
+        })),
+      });
     }
 
-    if (event.team === "team2") {
-      match.team2Score++;
-      const goalId = event.goalId;
-      const assistId = event.assistId;
-      const playerGolaer = match.team2Players.find((player) =>
-        player.playerId.equals(goalId)
-      );
-      const goalerProfile = await profileModel.findOne({ user: goalId });
-      goalerProfile.goals++;
-      playerGolaer.goals++;
-
-      const playerAssister = match.team2Players.find((player) =>
-        player.playerId.equals(assistId)
-      );
-      const assisterProfile = await profileModel.findOne({ user: assistId });
-      assisterProfile.assists++;
-      playerAssister.assists++;
-
-      await goalerProfile.save();
-      await assisterProfile.save();
-    }
-
-    await match.save();
-
-    return res.json({ message: "Event Added Successfully!", match });
+    return res.json({ message: "Event Added Successfully!", match, report });
   } catch (err) {
     console.log(err);
   }
@@ -316,7 +493,7 @@ export const getMatchByOwnerIdPending = async (req, res) => {
         };
       })
     );
-    const plname = playground.name
+    const plname = playground.name;
 
     return res.json({ message: "success", plname, matchDetails });
   } catch (err) {

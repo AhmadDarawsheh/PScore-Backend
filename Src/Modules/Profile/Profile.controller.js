@@ -130,14 +130,14 @@ export const getProfile = async (req, res) => {
       });
     }
 
-    let teamManagerMatches;
-    if (req.type === "manager") {
-      const managerTeam = await teamModel.findOne({ manager: req.id });
-      if (!managerTeam) return res.json({ message: "Your team not found" });
-      teamManagerMatches = await matchModel.find({
-        $or: [{ team1: managerTeam._id }, { team2: managerTeam._id }],
-      });
-    }
+    // let teamManagerMatches;
+    // if (req.type === "manager") {
+    //   const managerTeam = await teamModel.findOne({ manager: req.id });
+    //   if (!managerTeam) return res.json({ message: "Your team not found" });
+    //   teamManagerMatches = await matchModel.find({
+    //     $or: [{ team1: managerTeam._id }, { team2: managerTeam._id }],
+    //   });
+    // }
 
     const {
       user,
@@ -148,6 +148,7 @@ export const getProfile = async (req, res) => {
       team = "",
       goals = 0,
       assists = 0,
+      trustLevel = 1,
     } = profile;
     const userName = user.userName;
     const email = user.email;
@@ -177,6 +178,14 @@ export const getProfile = async (req, res) => {
         playerMatches,
       });
     } else if (user.userType === "manager") {
+      const managerTeam = await teamModel.findOne({ manager: req.id });
+      let teamManagerMatches;
+      if (managerTeam) {
+        teamManagerMatches = await matchModel.find({
+          $or: [{ team1: managerTeam._id }, { team2: managerTeam._id }],
+        });
+      }
+
       return res.json({
         userName,
         email,
@@ -196,6 +205,7 @@ export const getProfile = async (req, res) => {
         country,
         age,
         image,
+        trustLevel,
       });
     }
   } catch (err) {

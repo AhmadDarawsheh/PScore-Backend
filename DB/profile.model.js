@@ -38,6 +38,10 @@ const profileSchema = new Schema(
       type: Number,
       default: 0,
     },
+    trustLevel: {
+      type: Number,
+      default: 1,
+    },
   },
 
   {

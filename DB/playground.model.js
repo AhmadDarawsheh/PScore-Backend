@@ -24,7 +24,7 @@ const playgroundSchema = new Schema(
     },
     owner: {
       type: Schema.Types.ObjectId,
-      ref: "Owner",
+      ref: "User",
       required: true,
     },
   },
