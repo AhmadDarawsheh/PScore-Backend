@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import matchModel from "../../DB/match.model.js";
 import { getIo } from "./socket.js"; // Import the io instance
+import teamModel from "../../DB/team.model.js";
 
 const parseTime = (timeStr) => new Date(timeStr);
 
@@ -14,7 +15,7 @@ const updateRecentResults = async (teamId, result) => {
   if (team.recentResults.length > 4) {
     team.recentResults.shift(); // Keep only the last 4 results
   }
-
+  console.log("Hi there");
   await team.save();
 };
 
@@ -22,7 +23,7 @@ cron.schedule("*/10 * * * * *", async () => {
   try {
     console.log("hello from cron");
     const matches = await matchModel.find({
-      status: { $in: ["timed", "live"] },
+      status: { $in: ["timed", "live", "ended"] },
     });
 
     if (matches.length < 1) return console.log("No match found!");
@@ -54,7 +55,14 @@ cron.schedule("*/10 * * * * *", async () => {
         currentISOTime >= matchEndDateTime &&
         match.status !== "ended"
       ) {
+        console.log("Hi ther");
         match.status = "ended";
+
+        await match.save();
+      } else {
+        console.log("Match status unchanged");
+      }
+      if (match.status === "ended") {
         const team1Result =
           match.team1Score > match.team2Score
             ? "W"
@@ -70,9 +78,6 @@ cron.schedule("*/10 * * * * *", async () => {
 
         await updateRecentResults(match.team1, team1Result);
         await updateRecentResults(match.team2, team2Result);
-        await match.save();
-      } else {
-        console.log("Match status unchanged");
       }
     }
   } catch (err) {
