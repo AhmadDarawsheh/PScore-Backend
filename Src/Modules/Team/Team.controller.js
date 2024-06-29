@@ -496,6 +496,8 @@ export const inviteResponse = async (req, res) => {
       currentMatch.team2Players = players;
       currentMatch.team2others = othersArray;
       currentMatch.status = "timed";
+      currentMatch.invitationStatus = "accepted";
+      currentMatch.invitationExpiration = null;
 
       const notify = await invitationModel.create({
         match: currentMatch._id,
@@ -516,6 +518,9 @@ export const inviteResponse = async (req, res) => {
       currentMatch.team2Players = [];
       currentMatch.team2others = [];
       currentMatch.status = "empty";
+      currentMatch.invitationExpiration = null;
+      currentMatch.invitationStatus = "expired";
+
       currentMatch.invitedTeamResponse = "pending";
 
       const notify = await invitationModel.create({
@@ -553,7 +558,9 @@ export const getTeamMatches = async (req, res) => {
       .find({
         $or: [{ team1: team._id }, { team2: team._id }],
       })
-      .select("team1 team2 team1Score team2Score startTime endTime status date invitedTeam")
+      .select(
+        "team1 team2 team1Score team2Score startTime endTime status date invitedTeam"
+      )
       .populate("team1", "-_id name image")
       .populate("team2", "-_id name image")
       .populate("invitedTeam", "-_id name image")
