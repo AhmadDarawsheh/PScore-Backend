@@ -209,7 +209,7 @@ export const playerResponse = async (req, res) => {
         { new: true }
       );
 
-      const message = `You invited has been rejected`;
+      const message = `You invited has been accepted`;
       const playerResponse = await playerInvitationModel.create({
         sender: req.id,
         reciver: playerInvite.sender,
