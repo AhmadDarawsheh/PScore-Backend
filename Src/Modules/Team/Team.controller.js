@@ -521,6 +521,7 @@ export const getInvite = async (req, res) => {
     if (req.type !== "manager")
       return res.json({ message: "You are not a manager!" });
     const invites = await invitationModel.find({ reciver: req.id });
+    const playerInvites = await playerInvitationModel.find({ reciver: req.id });
 
     if (!invites) return res.json({ message: "No invitations availabe!" });
 
