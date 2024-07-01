@@ -4,7 +4,6 @@ import profileModel from "./../../../DB/profile.model.js";
 import matchModel from "./../../../DB/match.model.js";
 import invitationModel from "../../../DB/invitation.model.js";
 import playerInvitationModel from "../../../DB/playerInvitation.model.js";
-import { playerResponse } from "./Team.controller";
 
 export const createTeam = async (req, res) => {
   try {
@@ -209,7 +208,7 @@ export const playerResponse = async (req, res) => {
         { new: true }
       );
 
-      const message = `You invited has been accepetd`;
+      const message = `You invited has been rejected`;
       const playerResponse = await playerInvitationModel.create({
         sender: req.id,
         reciver: playerInvite.sender,
