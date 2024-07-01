@@ -3,6 +3,8 @@ import userModel from "./../../../DB/user.model.js";
 import profileModel from "./../../../DB/profile.model.js";
 import matchModel from "./../../../DB/match.model.js";
 import invitationModel from "../../../DB/invitation.model.js";
+import playerInvitationModel from "../../../DB/playerInvitation.model.js";
+import { playerResponse } from "./Team.controller";
 
 export const createTeam = async (req, res) => {
   try {
@@ -139,10 +141,60 @@ export const addPlayer = async (req, res) => {
           message: "Player is already in the team.",
         });
       }
+
+      const message = `You are invited to join ${teamManager.name} team `;
+      const playerInvite = await playerInvitationModel.create({
+        sender: req.id,
+        reciver: playerId,
+        message,
+        image: teamManager.image,
+      });
+
+      return res.json({
+        message: "Player is added to team successfully!",
+        team,
+        mergedPlayer,
+        addTeam,
+      });
+    } else {
+      return res.json({ message: "You are not eligible to add a player!" });
+    }
+  } catch (err) {}
+};
+
+export const getPlayerInvite = async (req, res) => {
+  try {
+    if (req.type !== "player")
+      return res.json({ message: "You are not a player!" });
+    const invites = await playerInvitationModel.find({ reciver: req.id });
+
+    if (!invites) return res.json({ message: "No invitations availabe!" });
+
+    return res.json({ message: "Your invitations: ", invites });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const playerResponse = async (req, res) => {
+  try {
+    const { response } = req.body;
+    if (req.type !== "player")
+      return res.json({ message: "You are not a player!" });
+
+    const playerInvite = await playerInvitationModel.findOne({
+      reciver: req.id,
+    });
+
+    const playerProfile = await profileModel.find({
+      user: req.id,
+    });
+
+    if (response === "accepted") {
       const team = await teamModel
         .findOneAndUpdate(
           {
-            manager: req.id,
+            manager: playerInvite.sender,
           },
           { $push: { players: playerId } },
           { new: true }
@@ -157,16 +209,29 @@ export const addPlayer = async (req, res) => {
         { new: true }
       );
 
-      return res.json({
-        message: "Player is added to team successfully!",
-        team,
-        mergedPlayer,
-        addTeam,
+      const message = `You invited has been accepetd`;
+      const playerResponse = await playerInvitationModel.create({
+        sender: req.id,
+        reciver: playerInvite.sender,
+        message,
+        image: playerProfile.image,
+      });
+    } else if (response === "rejected") {
+      const message = `You invited has been rejected`;
+      const playerResponse = await playerInvitationModel.create({
+        sender: req.id,
+        reciver: playerInvite.sender,
+        message,
+        image: playerProfile.image,
       });
     } else {
-      return res.json({ message: "You are not eligible to add a player!" });
+      return res.json({ message: "Invalid response" });
     }
-  } catch (err) {}
+
+    return res.json({ message: `Invitation ${response}` });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export const getTeam = async (req, res) => {

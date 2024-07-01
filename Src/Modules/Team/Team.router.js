@@ -25,5 +25,7 @@ app.get("/searchteams", auth, teamController.searchTeam);
 app.post("/inviteteam/:matchId/:teamId", auth, teamController.getTeamById);
 app.get("/invitation", auth, teamController.getInvite);
 app.post("/inviteteamresponse/:matchId", auth, teamController.inviteResponse);
+app.get("/playerinvitation", auth, teamController.getPlayerInvite);
+app.post("/playerinviteresponse", auth, teamController.playerResponse);
 
 export default app;
