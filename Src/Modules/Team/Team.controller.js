@@ -522,10 +522,11 @@ export const getInvite = async (req, res) => {
       return res.json({ message: "You are not a manager!" });
     const invites = await invitationModel.find({ reciver: req.id });
     const playerInvites = await playerInvitationModel.find({ reciver: req.id });
+    const allInvites = invites.concat(playerInvites);
 
-    if (!invites) return res.json({ message: "No invitations availabe!" });
+    if (!allInvites) return res.json({ message: "No invitations availabe!" });
 
-    return res.json({ message: "Your invitations: ", invites });
+    return res.json({ message: "Your invitations: ", allInvites });
   } catch (err) {
     console.log(err);
   }
