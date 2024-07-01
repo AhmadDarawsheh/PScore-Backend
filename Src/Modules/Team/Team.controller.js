@@ -141,6 +141,8 @@ export const addPlayer = async (req, res) => {
         });
       }
 
+      console.log("Hi there");
+
       const message = `You are invited to join ${teamManager.name} team `;
       const playerInvite = await playerInvitationModel.create({
         sender: req.id,
@@ -150,10 +152,9 @@ export const addPlayer = async (req, res) => {
       });
 
       return res.json({
-        message: "Player is added to team successfully!",
-        team,
+        message: "Player is invited to your team!",
+        playerInvite,
         mergedPlayer,
-        addTeam,
       });
     } else {
       return res.json({ message: "You are not eligible to add a player!" });
@@ -177,7 +178,7 @@ export const getPlayerInvite = async (req, res) => {
 
 export const playerResponse = async (req, res) => {
   try {
-    const { response } = req.body;
+    const { response, inviteId } = req.body;
     if (req.type !== "player")
       return res.json({ message: "You are not a player!" });
 
@@ -195,7 +196,7 @@ export const playerResponse = async (req, res) => {
           {
             manager: playerInvite.sender,
           },
-          { $push: { players: playerId } },
+          { $push: { players: req.id } },
           { new: true }
         )
         .populate("manager", "userName")
@@ -203,7 +204,7 @@ export const playerResponse = async (req, res) => {
         .select("name manager players");
 
       const addTeam = await profileModel.findOneAndUpdate(
-        { user: playerId },
+        { user: req.id },
         { team: team.name },
         { new: true }
       );
@@ -215,6 +216,10 @@ export const playerResponse = async (req, res) => {
         message,
         image: playerProfile.image,
       });
+
+      const deleteInvite = await playerInvitationModel.findByIdAndDelete(
+        inviteId
+      );
     } else if (response === "rejected") {
       const message = `You invited has been rejected`;
       const playerResponse = await playerInvitationModel.create({
@@ -223,6 +228,10 @@ export const playerResponse = async (req, res) => {
         message,
         image: playerProfile.image,
       });
+
+      const deleteInvite = await playerInvitationModel.findByIdAndDelete(
+        inviteId
+      );
     } else {
       return res.json({ message: "Invalid response" });
     }
